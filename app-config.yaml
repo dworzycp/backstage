@@ -266,6 +266,9 @@ integrations:
       secretAccessKey: ${AWS_SECRET_ACCESS_KEY}
 
 catalog:
+  model:
+    sources:
+      - plugin: catalog
   import:
     entityFilename: catalog-info.yaml
     pullRequestBranchName: backstage-integration
