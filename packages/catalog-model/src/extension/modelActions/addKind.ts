@@ -122,6 +122,10 @@ export interface CatalogModelKindRelationFieldDefinition {
    */
   selector: { path: string };
   /**
+   * The relation type that this field generates, e.g. "ownedBy".
+   */
+  relation: string;
+  /**
    * If the given shorthand ref did not have a kind, use this kind as the
    * default. If no default kind is specified, the ref must contain a kind.
    */

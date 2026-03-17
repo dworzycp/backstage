@@ -50,11 +50,11 @@ export const opDeclareRelationV1Schema = z.strictObject({
      */
     reverseType: z.string(),
     /**
-     * The singular human readable form of the relation name, e.g. "owner".
+     * The singular human-readable form of the relation name, e.g. "owner".
      */
     singular: z.string(),
     /**
-     * The plural human readable form of the relation name, e.g. "owners".
+     * The plural human-readable form of the relation name, e.g. "owners".
      */
     plural: z.string(),
     /**

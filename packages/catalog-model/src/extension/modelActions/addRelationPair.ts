@@ -50,7 +50,7 @@ export interface CatalogModelRelationPairDefinition {
      */
     type: string;
     /**
-     * The singular human readable form of the relation name, e.g. "owner".
+     * The singular human-readable form of the relation name, e.g. "owner".
      *
      * @remarks
      *
@@ -60,7 +60,7 @@ export interface CatalogModelRelationPairDefinition {
      */
     singular: string;
     /**
-     * The plural human readable form of the relation name, e.g. "owners".
+     * The plural human-readable form of the relation name, e.g. "owners".
      *
      * @remarks
      *
@@ -81,7 +81,7 @@ export interface CatalogModelRelationPairDefinition {
      */
     type: string;
     /**
-     * The singular human readable form of the relation name, e.g. "owns".
+     * The singular human-readable form of the relation name, e.g. "owns".
      *
      * @remarks
      *
@@ -91,7 +91,7 @@ export interface CatalogModelRelationPairDefinition {
      */
     singular: string;
     /**
-     * The plural human readable form of the relation name, e.g. "owns".
+     * The plural human-readable form of the relation name, e.g. "owns".
      *
      * @remarks
      *

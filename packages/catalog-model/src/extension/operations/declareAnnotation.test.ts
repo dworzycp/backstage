@@ -49,15 +49,21 @@ describe('createDeclareAnnotationOp', () => {
     ).toThrow(/extra/);
   });
 
-  it('should throw on missing required fields', () => {
-    expect(() =>
-      createDeclareAnnotationOp({
-        name: 'backstage.io/techdocs-ref',
-        properties: {
-          description: 'A reference to the TechDocs source',
-        },
-      } as any),
-    ).toThrow(/schema/);
+  it('should accept missing optional schema field', () => {
+    const result = createDeclareAnnotationOp({
+      name: 'backstage.io/techdocs-ref',
+      properties: {
+        description: 'A reference to the TechDocs source',
+      },
+    });
+
+    expect(result).toEqual({
+      op: 'declareAnnotation.v1',
+      name: 'backstage.io/techdocs-ref',
+      properties: {
+        description: 'A reference to the TechDocs source',
+      },
+    });
   });
 
   it('should throw on wrong field types', () => {

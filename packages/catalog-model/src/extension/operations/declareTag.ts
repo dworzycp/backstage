@@ -31,6 +31,11 @@ export const opDeclareTagV1Schema = z.strictObject({
    */
   properties: z.strictObject({
     /**
+     * A human-readable title that can be used for display purposes instead of
+     * the technical name.
+     */
+    title: z.string().optional(),
+    /**
      * A human-readable description of the tag.
      */
     description: z.string(),

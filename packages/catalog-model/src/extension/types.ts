@@ -28,7 +28,7 @@ import { JsonObject } from '@backstage/types';
 export interface CatalogModelExtension {
   readonly $$type: '@backstage/CatalogModelExtension';
   /**
-   * A human readable identifying name for this model extension. Used in logging
+   * A human-readable identifying name for this model extension. Used in logging
    * and similar.
    */
   readonly modelName: string;
@@ -104,7 +104,7 @@ export interface CatalogModel {
   getKind(
     options:
       | { kind: string; apiVersion: string; type?: string }
-      | { kind: string; apiVersion: string; spec: { type?: string } },
+      | { kind: string; apiVersion: string; spec?: { type?: string } },
   ): CatalogModelKind | undefined;
   /**
    * Look up all relations that originate from a given kind.

@@ -19,11 +19,7 @@ import {
   createServiceFactory,
   createServiceRef,
 } from '@backstage/backend-plugin-api';
-import {
-  type CatalogModelExtension,
-  type CatalogModelExtensionBuilder,
-  createCatalogModelExtension,
-} from '@backstage/catalog-model/alpha';
+import { type CatalogModelExtension } from '@backstage/catalog-model/alpha';
 import express, { type Router } from 'express';
 import PromiseRouter from 'express-promise-router';
 
@@ -37,12 +33,7 @@ import PromiseRouter from 'express-promise-router';
  * backend service to consume.
  */
 export interface CatalogModelRegistryService {
-  register(
-    modelExtensionName: string,
-    extension:
-      | CatalogModelExtension
-      | ((model: CatalogModelExtensionBuilder) => void),
-  ): void;
+  register(extension: CatalogModelExtension): void;
 }
 
 /**
@@ -54,31 +45,15 @@ export class DefaultCatalogModelRegistryService
   implements CatalogModelRegistryService
 {
   readonly #pluginId: string;
-  readonly #registrations: Array<{
-    modelExtensionName: string;
-    extension: CatalogModelExtension;
-  }>;
+  readonly #extensions: CatalogModelExtension[];
 
   constructor(pluginId: string) {
     this.#pluginId = pluginId;
-    this.#registrations = [];
+    this.#extensions = [];
   }
 
-  register(
-    modelExtensionName: string,
-    extensionOrFactory:
-      | CatalogModelExtension
-      | ((model: CatalogModelExtensionBuilder) => void),
-  ): void {
-    const extension =
-      typeof extensionOrFactory === 'function'
-        ? createCatalogModelExtension(extensionOrFactory)
-        : extensionOrFactory;
-
-    this.#registrations.push({
-      modelExtensionName,
-      extension,
-    });
+  register(extension: CatalogModelExtension): void {
+    this.#extensions.push(extension);
   }
 
   getRouter(): Router {
@@ -89,7 +64,7 @@ export class DefaultCatalogModelRegistryService
       (_req, res) => {
         res.json({
           pluginId: this.#pluginId,
-          extensions: this.#registrations,
+          extensions: this.#extensions,
         });
       },
     );
@@ -114,13 +89,16 @@ export const catalogModelRegistryServiceRef =
         service,
         deps: {
           httpRouter: coreServices.httpRouter,
+          rootLifecycle: coreServices.rootLifecycle,
           pluginMetadata: coreServices.pluginMetadata,
         },
-        async factory({ httpRouter, pluginMetadata }) {
+        async factory({ httpRouter, rootLifecycle, pluginMetadata }) {
           const registry = new DefaultCatalogModelRegistryService(
             pluginMetadata.getId(),
           );
-          httpRouter.use(registry.getRouter());
+          rootLifecycle.addStartupHook(() => {
+            httpRouter.use(registry.getRouter());
+          });
           return registry;
         },
       }),

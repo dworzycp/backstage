@@ -21,6 +21,7 @@ import {
 import { startTestBackend } from '@backstage/backend-test-utils';
 import request from 'supertest';
 import { catalogModelRegistryServiceRef } from './catalogModelRegistryService';
+import { createCatalogModelExtension } from '@backstage/catalog-model/alpha';
 
 describe('catalogModelRegistryServiceRef', () => {
   it('should serve registered kind extensions via the router', async () => {
@@ -43,23 +44,27 @@ describe('catalogModelRegistryServiceRef', () => {
             modelRegistry: catalogModelRegistryServiceRef,
           },
           async init({ modelRegistry }) {
-            modelRegistry.registerModelExtension('my-model', model => {
-              model.addKind({
-                group: 'example.com',
-                names: {
-                  kind: 'MyKind',
-                  singular: 'mykind',
-                  plural: 'mykinds',
-                },
-                description: 'A test kind',
-                versions: [
-                  {
-                    name: 'v1alpha1',
-                    schema: { jsonSchema: { type: 'object', properties: {} } },
+            modelRegistry.register(
+              createCatalogModelExtension('my-model', model => {
+                model.addKind({
+                  group: 'example.com',
+                  names: {
+                    kind: 'MyKind',
+                    singular: 'mykind',
+                    plural: 'mykinds',
                   },
-                ],
-              });
-            });
+                  description: 'A test kind',
+                  versions: [
+                    {
+                      name: 'v1alpha1',
+                      schema: {
+                        jsonSchema: { type: 'object', properties: {} },
+                      },
+                    },
+                  ],
+                });
+              }),
+            );
           },
         });
       },

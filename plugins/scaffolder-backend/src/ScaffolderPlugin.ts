@@ -176,7 +176,7 @@ export const scaffolderPlugin = createBackendPlugin({
         const log = loggerToWinstonLogger(logger);
         const integrations = ScmIntegrations.fromConfig(config);
 
-        catalogModelRegistry.register('Template', templateModelExtension);
+        catalogModelRegistry.register(templateModelExtension);
 
         const templateExtensions = {
           additionalTemplateFilters: convertFiltersToRecord(

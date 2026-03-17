@@ -31,6 +31,14 @@ import { CatalogModelExtension } from './types';
  * catalog which then forms a complete picture out of them.
  */
 export function createCatalogModelExtension(
+  /**
+   * The name of the model extension.
+   *
+   * @remarks
+   *
+   * This is a human-readable identifier that may be used in error reporting and
+   * similar.
+   */
   modelName: string,
   model: (model: CatalogModelExtensionBuilder) => void,
 ): CatalogModelExtension {

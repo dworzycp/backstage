@@ -31,15 +31,27 @@ export const opDeclareLabelV1Schema = z.strictObject({
    */
   properties: z.strictObject({
     /**
+     * A human-readable title that can be used for display purposes instead of
+     * the technical name.
+     */
+    title: z.string().optional(),
+    /**
      * A human-readable description of the label.
      */
     description: z.string(),
     /**
      * The JSON schema that values of this label must conform to.
+     *
+     * @remarks
+     *
+     * If not provided, the label is assumed to be a simple string with no
+     * particular schema.
      */
-    schema: z.strictObject({
-      jsonSchema: z.record(z.string(), z.unknown()),
-    }),
+    schema: z
+      .strictObject({
+        jsonSchema: z.record(z.string(), z.unknown()),
+      })
+      .optional(),
   }),
 });
 

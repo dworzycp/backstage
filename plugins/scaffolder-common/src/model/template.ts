@@ -16,31 +16,35 @@
 
 import { createCatalogModelExtension } from '@backstage/catalog-model/alpha';
 
-export const templateModelExtension = createCatalogModelExtension(builder => {
-  builder.addKind({
-    group: 'scaffolder.backstage.io',
-    names: {
-      kind: 'Template',
-      singular: 'template',
-      plural: 'templates',
-    },
-    description: 'A template for scaffolding a new component',
-    versions: [
-      {
-        name: 'v1beta3',
-        relationFields: [
-          {
-            selector: { path: 'spec.owner' },
-            defaultKind: 'Group',
-            // TODO: This was inherit since before, but should ownership in general be default instead?
-            defaultNamespace: 'inherit',
-            allowedKinds: ['Group', 'User'],
-          },
-        ],
-        schema: {
-          jsonSchema: require('./Template.v1beta3.schema.json'),
-        },
+export const templateModelExtension = createCatalogModelExtension(
+  'Template',
+  builder => {
+    builder.addKind({
+      group: 'scaffolder.backstage.io',
+      names: {
+        kind: 'Template',
+        singular: 'template',
+        plural: 'templates',
       },
-    ],
-  });
-});
+      description: 'A template for scaffolding a new component',
+      versions: [
+        {
+          name: 'v1beta3',
+          relationFields: [
+            {
+              selector: { path: 'spec.owner' },
+              relation: 'ownedBy',
+              defaultKind: 'Group',
+              // TODO: This was inherit since before, but should ownership in general be default instead?
+              defaultNamespace: 'inherit',
+              allowedKinds: ['Group', 'User'],
+            },
+          ],
+          schema: {
+            jsonSchema: require('./Template.v1beta3.schema.json'),
+          },
+        },
+      ],
+    });
+  },
+);

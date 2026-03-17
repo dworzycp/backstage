@@ -49,15 +49,21 @@ describe('createDeclareLabelOp', () => {
     ).toThrow(/extra/);
   });
 
-  it('should throw on missing required fields', () => {
-    expect(() =>
-      createDeclareLabelOp({
-        name: 'backstage.io/source-location',
-        properties: {
-          description: 'The source location of the entity',
-        },
-      } as any),
-    ).toThrow(/schema/);
+  it('should accept missing optional schema field', () => {
+    const result = createDeclareLabelOp({
+      name: 'backstage.io/source-location',
+      properties: {
+        description: 'The source location of the entity',
+      },
+    });
+
+    expect(result).toEqual({
+      op: 'declareLabel.v1',
+      name: 'backstage.io/source-location',
+      properties: {
+        description: 'The source location of the entity',
+      },
+    });
   });
 
   it('should throw on wrong field types', () => {

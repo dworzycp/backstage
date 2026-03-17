@@ -32,11 +32,11 @@ export const opUpdateKindV1Schema = z.strictObject({
    */
   properties: z.strictObject({
     /**
-     * The singular form of the human readable kind, e.g. "component".
+     * The singular form of the human-readable kind, e.g. "component".
      */
     singular: z.string().optional(),
     /**
-     * The plural form of the human readable kind, e.g. "components".
+     * The plural form of the human-readable kind, e.g. "components".
      */
     plural: z.string().optional(),
     /**
