@@ -73,7 +73,6 @@ function createModel(overrides?: {
   getRelations?: CatalogModel['getRelations'];
 }): CatalogModel {
   return {
-    ops: [],
     getKind: overrides?.getKind ?? (() => componentKind),
     getRelations:
       overrides?.getRelations ?? (() => [ownedByRelation, dependsOnRelation]),

@@ -88,7 +88,8 @@ export class ModelProcessor implements CatalogProcessor {
       return entity;
     }
 
-    const modelRelations = this.#model.getRelations(entity.kind) ?? [];
+    const modelRelations =
+      this.#model.getRelations({ kind: entity.kind }) ?? [];
     const selfRef = getCompoundEntityRef(entity);
     const selfNamespace = entity.metadata.namespace ?? DEFAULT_NAMESPACE;
 

@@ -31,6 +31,10 @@ const relationFieldSchema = z.strictObject({
     path: z.string(),
   }),
   /**
+   * The relation type that this field generates, e.g. "ownedBy".
+   */
+  relation: z.string(),
+  /**
    * If the given shorthand ref did not have a kind, use this kind as the
    * default. If no default kind is specified, the ref must contain a kind.
    */

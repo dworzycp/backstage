@@ -17,7 +17,6 @@
 import { createCatalogModelExtensionBuilder } from '@backstage/catalog-model/alpha';
 
 export const model = createCatalogModelExtensionBuilder({
-  pluginId: 'scaffolder',
   modelName: 'template',
 }).addKind({
   group: 'scaffolder.backstage.io',
@@ -33,6 +32,7 @@ export const model = createCatalogModelExtensionBuilder({
       relationFields: [
         {
           selector: { path: 'spec.owner' },
+          relation: 'ownedBy',
           defaultKind: 'Group',
           // TODO: This was inherit since before, but should ownership in general be default instead?
           defaultNamespace: 'inherit',

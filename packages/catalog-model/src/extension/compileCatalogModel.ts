@@ -29,7 +29,6 @@ import { OpUpdateRelationV1 } from './operations/updateRelation';
 import {
   CatalogModel,
   CatalogModelExtension,
-  OpaqueCatalogModel,
   OpaqueCatalogModelExtension,
 } from './types';
 
@@ -256,17 +255,13 @@ function applyUpdateRelation(
  * @returns The compiled catalog model.
  */
 export function compileCatalogModel(
-  inputs: Iterable<CatalogModelExtension | CatalogModel>,
+  inputs: Iterable<CatalogModelExtension>,
 ): CatalogModel {
   // Collect all ops from all inputs
   let allOps: CatalogModelOp[] = [];
   for (const input of inputs) {
-    if ('ops' in input) {
-      allOps = allOps.concat(input.ops);
-    } else {
-      const internal = OpaqueCatalogModelExtension.toInternal(input);
-      allOps = allOps.concat(internal.ops);
-    }
+    const internal = OpaqueCatalogModelExtension.toInternal(input);
+    allOps = allOps.concat(internal.ops);
   }
 
   const sortedOps = sortOps(allOps);
@@ -300,11 +295,9 @@ export function compileCatalogModel(
     }
   }
 
-  return OpaqueCatalogModel.createInstance('v1', {
-    ops: sortedOps,
-
+  return {
     getKind(options) {
-      const type = 'spec' in options ? options.spec.type : options.type;
+      const type = options.spec?.type;
 
       const kindState = kinds.get(options.kind);
       if (!kindState) {
@@ -349,12 +342,12 @@ export function compileCatalogModel(
       };
     },
 
-    getRelations(kindName) {
-      if (!kinds.has(kindName)) {
+    getRelations(options) {
+      if (!kinds.has(options.kind)) {
         return undefined;
       }
       return [...relations.values()]
-        .filter(r => r.fromKinds.has(kindName))
+        .filter(r => r.fromKinds.has(options.kind))
         .map(r => ({
           fromKind: [...r.fromKinds],
           toKind: [...r.toKinds],
@@ -363,7 +356,7 @@ export function compileCatalogModel(
           reverse: r.reverse,
         }));
     },
-  });
+  };
 }
 
 // #endregion

@@ -60,52 +60,23 @@ export const OpaqueCatalogModelExtension = OpaqueType.create<{
 // #region CatalogModel
 
 /**
- * The opaque type that represents a compiled catalog model.
- *
- * @internal
- */
-export const OpaqueCatalogModel = OpaqueType.create<{
-  public: CatalogModel;
-  versions: {
-    readonly version: 'v1';
-    getKind(
-      options:
-        | { kind: string; apiVersion: string; type?: string }
-        | { kind: string; apiVersion: string; spec: { type?: string } },
-    ): CatalogModelKind | undefined;
-    getRelations(kind: string): CatalogModelRelation[] | undefined;
-    readonly ops: Array<CatalogModelOp>;
-  };
-}>({
-  type: '@backstage/CatalogModel',
-  versions: ['v1'],
-});
-
-/**
  * A compiled catalog model.
  *
  * @alpha
  */
 export interface CatalogModel {
-  readonly $$type: '@backstage/CatalogModel';
-
-  /**
-   * All of the ops that were used to build this model, in the order they were
-   * applied.
-   */
-  ops: ReadonlyArray<CatalogModelOp>;
-
   /**
    * Look up a kind in the model.
    *
    * @returns The kind if found, or `undefined` if no matching kind exists.
    * @throws TypeError if the kind exists in the model, but not for this apiVersion or type.
    */
-  getKind(
-    options:
-      | { kind: string; apiVersion: string; type?: string }
-      | { kind: string; apiVersion: string; spec?: { type?: string } },
-  ): CatalogModelKind | undefined;
+  getKind(options: {
+    kind: string;
+    apiVersion: string;
+    spec?: { type?: string };
+  }): CatalogModelKind | undefined;
+
   /**
    * Look up all relations that originate from a given kind.
    *
@@ -113,7 +84,7 @@ export interface CatalogModel {
    * @returns The relations originating from the kind, or `undefined` if the
    *   kind is not known.
    */
-  getRelations(kind: string): CatalogModelRelation[] | undefined;
+  getRelations(options: { kind: string }): CatalogModelRelation[] | undefined;
 }
 
 // #endregion

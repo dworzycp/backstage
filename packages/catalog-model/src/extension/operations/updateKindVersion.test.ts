@@ -50,6 +50,7 @@ describe('createUpdateKindVersionOp', () => {
         relationFields: [
           {
             selector: { path: 'spec.owner' },
+            relation: 'ownedBy',
             defaultKind: 'Group',
             defaultNamespace: 'inherit',
           },
