@@ -14,7 +14,9 @@
  * limitations under the License.
  */
 
+import { createCatalogModelExtension } from '../extension/createCatalogModelExtension';
 import type { Entity } from '../entity/Entity';
+import reducedSchema from '../schema/kinds/User.v1alpha1.reduced.schema.json';
 import schema from '../schema/kinds/User.v1alpha1.schema.json';
 import { ajvCompiledJsonSchemaValidator } from './util';
 
@@ -43,3 +45,38 @@ export interface UserEntityV1alpha1 extends Entity {
  */
 export const userEntityV1alpha1Validator =
   ajvCompiledJsonSchemaValidator(schema);
+
+/**
+ * Extends the catalog model with the User kind.
+ *
+ * @alpha
+ */
+export const userEntityModel = createCatalogModelExtension('User', builder => {
+  builder.addKind({
+    group: 'backstage.io',
+    names: {
+      kind: 'User',
+      singular: 'user',
+      plural: 'users',
+    },
+    description:
+      'A User describes a person, such as an employee or a contractor.',
+    versions: [
+      {
+        name: ['v1alpha1', 'v1beta1'],
+        relationFields: [
+          {
+            selector: { path: 'spec.memberOf' },
+            relation: 'memberOf',
+            defaultKind: 'Group',
+            defaultNamespace: 'inherit',
+            allowedKinds: ['Group'],
+          },
+        ],
+        schema: {
+          jsonSchema: reducedSchema as any,
+        },
+      },
+    ],
+  });
+});

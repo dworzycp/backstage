@@ -62,6 +62,11 @@ export interface CatalogModelExtensionBuilder {
    * Updates an existing relation pair in the model.
    */
   updateRelationPair(relation: CatalogModelUpdateRelationPairDefinition): void;
+
+  /**
+   * Imports all operations from another catalog model extension into this one.
+   */
+  import(extension: CatalogModelExtension): void;
 }
 
 /**
@@ -96,6 +101,11 @@ export class DefaultCatalogModelExtensionBuilder
   updateRelationPair(relation: CatalogModelUpdateRelationPairDefinition): void {
     const ops = opsFromCatalogModelUpdateRelationPair(relation);
     this.#ops.push(...ops);
+  }
+
+  import(extension: CatalogModelExtension): void {
+    const internal = OpaqueCatalogModelExtension.toInternal(extension);
+    this.#ops.push(...internal.ops);
   }
 
   build(): CatalogModelExtension {

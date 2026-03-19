@@ -14,7 +14,9 @@
  * limitations under the License.
  */
 
+import { createCatalogModelExtension } from '../extension/createCatalogModelExtension';
 import type { Entity } from '../entity/Entity';
+import reducedSchema from '../schema/kinds/Group.v1alpha1.reduced.schema.json';
 import schema from '../schema/kinds/Group.v1alpha1.schema.json';
 import { ajvCompiledJsonSchemaValidator } from './util';
 
@@ -45,3 +47,55 @@ export interface GroupEntityV1alpha1 extends Entity {
  */
 export const groupEntityV1alpha1Validator =
   ajvCompiledJsonSchemaValidator(schema);
+
+/**
+ * Extends the catalog model with the Group kind.
+ *
+ * @alpha
+ */
+export const groupEntityModel = createCatalogModelExtension(
+  'Group',
+  builder => {
+    builder.addKind({
+      group: 'backstage.io',
+      names: {
+        kind: 'Group',
+        singular: 'group',
+        plural: 'groups',
+      },
+      description:
+        'A Group describes an organizational entity, such as a team, a business unit, or a loose collection of people.',
+      versions: [
+        {
+          name: ['v1alpha1', 'v1beta1'],
+          relationFields: [
+            {
+              selector: { path: 'spec.parent' },
+              relation: 'childOf',
+              defaultKind: 'Group',
+              defaultNamespace: 'inherit',
+              allowedKinds: ['Group'],
+            },
+            {
+              selector: { path: 'spec.children' },
+              relation: 'parentOf',
+              defaultKind: 'Group',
+              defaultNamespace: 'inherit',
+              allowedKinds: ['Group'],
+            },
+            {
+              selector: { path: 'spec.members' },
+              relation: 'hasMember',
+              defaultKind: 'User',
+              defaultNamespace: 'inherit',
+              allowedKinds: ['User'],
+            },
+          ],
+          schema: {
+            jsonSchema: reducedSchema as any,
+          },
+        },
+      ],
+    });
+  },
+);

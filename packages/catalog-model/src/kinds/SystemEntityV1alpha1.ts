@@ -14,8 +14,10 @@
  * limitations under the License.
  */
 
+import { createCatalogModelExtension } from '../extension/createCatalogModelExtension';
 import type { Entity } from '../entity/Entity';
 import { ajvCompiledJsonSchemaValidator } from './util';
+import reducedSchema from '../schema/kinds/System.v1alpha1.reduced.schema.json';
 import schema from '../schema/kinds/System.v1alpha1.schema.json';
 
 /**
@@ -44,3 +46,47 @@ export interface SystemEntityV1alpha1 extends Entity {
  */
 export const systemEntityV1alpha1Validator =
   ajvCompiledJsonSchemaValidator(schema);
+
+/**
+ * Extends the catalog model with the System kind.
+ *
+ * @alpha
+ */
+export const systemEntityModel = createCatalogModelExtension(
+  'System',
+  builder => {
+    builder.addKind({
+      group: 'backstage.io',
+      names: {
+        kind: 'System',
+        singular: 'system',
+        plural: 'systems',
+      },
+      description:
+        'A System is a collection of resources and components that exposes one or several APIs.',
+      versions: [
+        {
+          name: ['v1alpha1', 'v1beta1'],
+          relationFields: [
+            {
+              selector: { path: 'spec.owner' },
+              relation: 'ownedBy',
+              defaultKind: 'Group',
+              defaultNamespace: 'inherit',
+              allowedKinds: ['Group', 'User'],
+            },
+            {
+              selector: { path: 'spec.domain' },
+              relation: 'partOf',
+              defaultKind: 'Domain',
+              defaultNamespace: 'inherit',
+            },
+          ],
+          schema: {
+            jsonSchema: reducedSchema as any,
+          },
+        },
+      ],
+    });
+  },
+);

@@ -70,10 +70,11 @@ export interface CatalogModelKindDefinition {
    */
   versions?: Array<{
     /**
-     * The specific version name, e.g. "v1alpha1". The kind group and the
-     * version name form the full apiVersion, e.g. "backstage.io/v1alpha1".
+     * The specific version name or names, e.g. "v1alpha1" or
+     * ["v1alpha1", "v1beta1"]. The kind group and the version name form the
+     * full apiVersion, e.g. "backstage.io/v1alpha1".
      */
-    name: string;
+    name: string | string[];
 
     /**
      * The spec types that this version applies to.
@@ -162,21 +163,24 @@ export function opsFromCatalogModelKind(
   for (const version of kind.versions ?? []) {
     validateMetaSchema(version.schema.jsonSchema);
     validateKindRootSchemaSemantics(version.schema.jsonSchema);
-    for (const specType of version.specTypes ?? [undefined]) {
-      ops.push(
-        createDeclareKindVersionOp({
-          kind: kind.names.kind,
-          name: version.name,
-          specType: specType,
-          properties: {
-            description: version.description,
-            relationFields: version.relationFields,
-            schema: {
-              jsonSchema: version.schema.jsonSchema as any,
+    const names = Array.isArray(version.name) ? version.name : [version.name];
+    for (const name of names) {
+      for (const specType of version.specTypes ?? [undefined]) {
+        ops.push(
+          createDeclareKindVersionOp({
+            kind: kind.names.kind,
+            name,
+            specType: specType,
+            properties: {
+              description: version.description,
+              relationFields: version.relationFields,
+              schema: {
+                jsonSchema: version.schema.jsonSchema as any,
+              },
             },
-          },
-        }),
-      );
+          }),
+        );
+      }
     }
   }
 

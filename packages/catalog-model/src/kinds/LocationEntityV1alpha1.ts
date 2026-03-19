@@ -14,7 +14,9 @@
  * limitations under the License.
  */
 
+import { createCatalogModelExtension } from '../extension/createCatalogModelExtension';
 import type { Entity } from '../entity/Entity';
+import reducedSchema from '../schema/kinds/Location.v1alpha1.reduced.schema.json';
 import schema from '../schema/kinds/Location.v1alpha1.schema.json';
 import { ajvCompiledJsonSchemaValidator } from './util';
 
@@ -41,3 +43,32 @@ export interface LocationEntityV1alpha1 extends Entity {
  */
 export const locationEntityV1alpha1Validator =
   ajvCompiledJsonSchemaValidator(schema);
+
+/**
+ * Extends the catalog model with the Location kind.
+ *
+ * @alpha
+ */
+export const locationEntityModel = createCatalogModelExtension(
+  'Location',
+  builder => {
+    builder.addKind({
+      group: 'backstage.io',
+      names: {
+        kind: 'Location',
+        singular: 'location',
+        plural: 'locations',
+      },
+      description:
+        'A Location is a marker that references other places to look for catalog data.',
+      versions: [
+        {
+          name: ['v1alpha1', 'v1beta1'],
+          schema: {
+            jsonSchema: reducedSchema as any,
+          },
+        },
+      ],
+    });
+  },
+);

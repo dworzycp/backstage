@@ -14,7 +14,9 @@
  * limitations under the License.
  */
 
+import { createCatalogModelExtension } from '../extension/createCatalogModelExtension';
 import type { Entity } from '../entity/Entity';
+import reducedSchema from '../schema/kinds/Domain.v1alpha1.reduced.schema.json';
 import schema from '../schema/kinds/Domain.v1alpha1.schema.json';
 import { ajvCompiledJsonSchemaValidator } from './util';
 
@@ -44,3 +46,47 @@ export interface DomainEntityV1alpha1 extends Entity {
  */
 export const domainEntityV1alpha1Validator =
   ajvCompiledJsonSchemaValidator(schema);
+
+/**
+ * Extends the catalog model with the Domain kind.
+ *
+ * @alpha
+ */
+export const domainEntityModel = createCatalogModelExtension(
+  'Domain',
+  builder => {
+    builder.addKind({
+      group: 'backstage.io',
+      names: {
+        kind: 'Domain',
+        singular: 'domain',
+        plural: 'domains',
+      },
+      description:
+        'A Domain groups a collection of systems that share terminology, domain models, business purpose, or documentation.',
+      versions: [
+        {
+          name: ['v1alpha1', 'v1beta1'],
+          relationFields: [
+            {
+              selector: { path: 'spec.owner' },
+              relation: 'ownedBy',
+              defaultKind: 'Group',
+              defaultNamespace: 'inherit',
+              allowedKinds: ['Group', 'User'],
+            },
+            {
+              selector: { path: 'spec.subdomainOf' },
+              relation: 'partOf',
+              defaultKind: 'Domain',
+              defaultNamespace: 'inherit',
+            },
+          ],
+          schema: {
+            jsonSchema: reducedSchema as any,
+          },
+        },
+      ],
+    });
+  },
+);

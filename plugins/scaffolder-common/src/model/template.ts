@@ -15,7 +15,13 @@
  */
 
 import { createCatalogModelExtension } from '@backstage/catalog-model/alpha';
+import schema from './Template.v1beta3.schema.json';
 
+/**
+ * Extends the catalog model with the Template kind.
+ *
+ * @alpha
+ */
 export const templateModelExtension = createCatalogModelExtension(
   'Template',
   builder => {
@@ -41,7 +47,7 @@ export const templateModelExtension = createCatalogModelExtension(
             },
           ],
           schema: {
-            jsonSchema: require('./Template.v1beta3.schema.json'),
+            jsonSchema: schema as any,
           },
         },
       ],

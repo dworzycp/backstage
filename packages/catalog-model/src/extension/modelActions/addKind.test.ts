@@ -34,6 +34,7 @@ describe('opsFromCatalogModelKind', () => {
           relationFields: [
             {
               selector: { path: 'spec.owner' },
+              relation: 'ownedBy',
               defaultKind: 'Group',
               defaultNamespace: 'inherit',
               allowedKinds: ['User', 'Group'],

@@ -118,9 +118,12 @@ import { filterAndSortProcessors, filterProviders } from './util';
 import { GenericScmEventRefreshProvider } from '../providers/GenericScmEventRefreshProvider';
 import { readScmEventHandlingConfig } from '../util/readScmEventHandlingConfig';
 import { MetricsService } from '@backstage/backend-plugin-api/alpha';
+import { CatalogModel } from '@backstage/catalog-model/alpha';
+import { ModelProcessor } from '../processors/ModelProcessor';
 
 export type CatalogEnvironment = {
   logger: LoggerService;
+  model?: CatalogModel;
   database: DatabaseService;
   config: RootConfigService;
   reader: UrlReaderService;
@@ -697,9 +700,11 @@ export class CatalogBuilder {
     ];
 
     const builtinKindsEntityProcessor = new BuiltinKindsEntityProcessor();
-    // If the user adds a processor named 'BuiltinKindsEntityProcessor',
-    //   skip inclusion of the catalog-backend version.
+    // If the user adds a processor named 'BuiltinKindsEntityProcessor', skip
+    // inclusion of the catalog-backend version. Same if there's a model
+    // registered - then we are using the new model flow.
     if (
+      !this.env.model &&
       !this.processors.some(
         processor =>
           processor.getProcessorName() ===
@@ -707,6 +712,9 @@ export class CatalogBuilder {
       )
     ) {
       processors.push(builtinKindsEntityProcessor);
+    }
+    if (this.env.model) {
+      processors.push(new ModelProcessor(this.env.model));
     }
 
     const disableDefaultProcessors = config.getOptionalBoolean(

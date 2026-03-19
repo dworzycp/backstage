@@ -14,7 +14,9 @@
  * limitations under the License.
  */
 
+import { createCatalogModelExtension } from '../extension/createCatalogModelExtension';
 import type { Entity } from '../entity/Entity';
+import reducedSchema from '../schema/kinds/API.v1alpha1.reduced.schema.json';
 import schema from '../schema/kinds/API.v1alpha1.schema.json';
 import { ajvCompiledJsonSchemaValidator } from './util';
 
@@ -46,3 +48,44 @@ export interface ApiEntityV1alpha1 extends Entity {
  */
 export const apiEntityV1alpha1Validator =
   ajvCompiledJsonSchemaValidator(schema);
+
+/**
+ * Extends the catalog model with the API kind.
+ *
+ * @alpha
+ */
+export const apiEntityModel = createCatalogModelExtension('API', builder => {
+  builder.addKind({
+    group: 'backstage.io',
+    names: {
+      kind: 'API',
+      singular: 'api',
+      plural: 'apis',
+    },
+    description:
+      'An API describes an interface that can be exposed by a component.',
+    versions: [
+      {
+        name: ['v1alpha1', 'v1beta1'],
+        relationFields: [
+          {
+            selector: { path: 'spec.owner' },
+            relation: 'ownedBy',
+            defaultKind: 'Group',
+            defaultNamespace: 'inherit',
+            allowedKinds: ['Group', 'User'],
+          },
+          {
+            selector: { path: 'spec.system' },
+            relation: 'partOf',
+            defaultKind: 'System',
+            defaultNamespace: 'inherit',
+          },
+        ],
+        schema: {
+          jsonSchema: reducedSchema as any,
+        },
+      },
+    ],
+  });
+});

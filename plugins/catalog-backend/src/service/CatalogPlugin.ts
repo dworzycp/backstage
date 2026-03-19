@@ -257,6 +257,7 @@ export const catalogPlugin = createBackendPlugin({
       }) {
         const builder = await CatalogBuilder.create({
           config,
+          model: modelExtensions.model,
           reader,
           permissions,
           permissionsRegistry,
