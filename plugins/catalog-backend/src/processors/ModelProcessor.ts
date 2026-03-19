@@ -28,9 +28,11 @@ import {
   processingResult,
 } from '@backstage/plugin-catalog-node';
 import lodash from 'lodash';
+import { SchemaValidator } from './SchemaValidator';
 
 export class ModelProcessor implements CatalogProcessor {
   readonly #model: CatalogModel;
+  readonly #schemaValidator = new SchemaValidator();
 
   constructor(model: CatalogModel) {
     this.#model = model;
@@ -69,7 +71,14 @@ export class ModelProcessor implements CatalogProcessor {
     if (!kind) {
       return false;
     }
-    // TODO: validate entity against kind.jsonSchema using AJV
+
+    const errors = this.#schemaValidator.validate(kind.jsonSchema, entity);
+    if (errors.length) {
+      throw new TypeError(
+        `Validation of ${entity.kind} entity failed: ${errors.join('; ')}`,
+      );
+    }
+
     return true;
   }
 

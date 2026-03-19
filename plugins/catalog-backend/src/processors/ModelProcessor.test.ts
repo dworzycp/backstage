@@ -41,7 +41,21 @@ const componentKind: CatalogModelKind = {
       allowedKinds: ['Component', 'Resource'],
     },
   ],
-  jsonSchema: {},
+  jsonSchema: {
+    type: 'object',
+    required: ['spec'],
+    properties: {
+      spec: {
+        type: 'object',
+        required: ['type', 'lifecycle', 'owner'],
+        properties: {
+          type: { type: 'string', minLength: 1 },
+          lifecycle: { type: 'string', minLength: 1 },
+          owner: { type: 'string', minLength: 1 },
+        },
+      },
+    },
+  },
 };
 
 const ownedByRelation: CatalogModelRelation = {
@@ -157,11 +171,24 @@ describe('ModelProcessor', () => {
       expect(await processor.validateEntityKind(entity)).toBe(false);
     });
 
-    it('returns true when the kind is found', async () => {
+    it('returns true when the entity is valid', async () => {
       const processor = new ModelProcessor(createModel());
       const entity = createEntity();
 
       expect(await processor.validateEntityKind(entity)).toBe(true);
+    });
+
+    it('throws when the entity fails schema validation', async () => {
+      const processor = new ModelProcessor(createModel());
+      const entity = createEntity({
+        type: 'service',
+        lifecycle: 'production',
+        // missing required "owner"
+      });
+
+      await expect(processor.validateEntityKind(entity)).rejects.toThrow(
+        /Validation of Component entity failed/,
+      );
     });
   });
 
