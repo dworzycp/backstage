@@ -14,10 +14,13 @@
  * limitations under the License.
  */
 
+export { type CatalogModelAnnotationDefinition } from './addAnnotation';
 export {
   type CatalogModelKindDefinition,
   type CatalogModelKindRelationFieldDefinition,
 } from './addKind';
+export { type CatalogModelLabelDefinition } from './addLabel';
 export { type CatalogModelRelationPairDefinition } from './addRelationPair';
+export { type CatalogModelTagDefinition } from './addTag';
 export { type CatalogModelUpdateKindDefinition } from './updateKind';
 export { type CatalogModelUpdateRelationPairDefinition } from './updateRelationPair';

@@ -15,13 +15,25 @@
  */
 
 import {
+  type CatalogModelAnnotationDefinition,
+  opsFromCatalogModelAnnotation,
+} from './modelActions/addAnnotation';
+import {
   type CatalogModelKindDefinition,
   opsFromCatalogModelKind,
 } from './modelActions/addKind';
 import {
+  type CatalogModelLabelDefinition,
+  opsFromCatalogModelLabel,
+} from './modelActions/addLabel';
+import {
   type CatalogModelRelationPairDefinition,
   opsFromCatalogModelRelationPair,
 } from './modelActions/addRelationPair';
+import {
+  type CatalogModelTagDefinition,
+  opsFromCatalogModelTag,
+} from './modelActions/addTag';
 import {
   CatalogModelUpdateKindDefinition,
   opsFromCatalogModelUpdateKind,
@@ -44,19 +56,29 @@ import { CatalogModelExtension, OpaqueCatalogModelExtension } from './types';
  */
 export interface CatalogModelExtensionBuilder {
   /**
+   * Adds a new annotation to the model.
+   */
+  addAnnotation(annotation: CatalogModelAnnotationDefinition): void;
+
+  /**
    * Adds a new kind to the model.
    */
   addKind(kind: CatalogModelKindDefinition): void;
 
   /**
-   * Updates an existing kind in the model.
+   * Adds a new label to the model.
    */
-  updateKind(kind: CatalogModelUpdateKindDefinition): void;
+  addLabel(label: CatalogModelLabelDefinition): void;
 
   /**
    * Adds a new relation pair to the model.
    */
   addRelationPair(relation: CatalogModelRelationPairDefinition): void;
+
+  /**
+   * Adds a new tag to the model.
+   */
+  addTag(tag: CatalogModelTagDefinition): void;
 
   /**
    * Updates an existing relation pair in the model.
@@ -83,8 +105,18 @@ export class DefaultCatalogModelExtensionBuilder
     this.#ops = [];
   }
 
+  addAnnotation(annotation: CatalogModelAnnotationDefinition): void {
+    const ops = opsFromCatalogModelAnnotation(annotation);
+    this.#ops.push(...ops);
+  }
+
   addKind(kind: CatalogModelKindDefinition): void {
     const ops = opsFromCatalogModelKind(kind);
+    this.#ops.push(...ops);
+  }
+
+  addLabel(label: CatalogModelLabelDefinition): void {
+    const ops = opsFromCatalogModelLabel(label);
     this.#ops.push(...ops);
   }
 
@@ -95,6 +127,11 @@ export class DefaultCatalogModelExtensionBuilder
 
   addRelationPair(relation: CatalogModelRelationPairDefinition): void {
     const ops = opsFromCatalogModelRelationPair(relation);
+    this.#ops.push(...ops);
+  }
+
+  addTag(tag: CatalogModelTagDefinition): void {
+    const ops = opsFromCatalogModelTag(tag);
     this.#ops.push(...ops);
   }
 
