@@ -20,9 +20,12 @@ import lodash from 'lodash';
 import { mergeJsonSchemas } from './jsonSchema/mergeJsonSchemas';
 import { CatalogModelOp } from './operations';
 import { ops } from './operations/util';
+import { OpDeclareAnnotationV1 } from './operations/declareAnnotation';
 import { OpDeclareKindV1 } from './operations/declareKind';
 import { OpDeclareKindVersionV1 } from './operations/declareKindVersion';
+import { OpDeclareLabelV1 } from './operations/declareLabel';
 import { OpDeclareRelationV1 } from './operations/declareRelation';
+import { OpDeclareTagV1 } from './operations/declareTag';
 import { OpUpdateKindV1 } from './operations/updateKind';
 import { OpUpdateKindVersionV1 } from './operations/updateKindVersion';
 import { OpUpdateRelationV1 } from './operations/updateRelation';
@@ -59,6 +62,23 @@ interface RelationState {
   comment: string;
   forward: { type: string; singular: string; plural: string };
   reverse: { type: string; singular: string; plural: string };
+}
+
+interface AnnotationState {
+  title?: string;
+  description: string;
+  schema?: { jsonSchema: JsonObject };
+}
+
+interface LabelState {
+  title?: string;
+  description: string;
+  schema?: { jsonSchema: JsonObject };
+}
+
+interface TagState {
+  title?: string;
+  description: string;
 }
 
 // #endregion
@@ -244,6 +264,162 @@ function applyUpdateRelation(
   }
 }
 
+function applyDeclareAnnotation(
+  annotations: Map<string, AnnotationState>,
+  op: OpDeclareAnnotationV1,
+): void {
+  if (annotations.has(op.name)) {
+    throw new InputError(`Annotation "${op.name}" is declared more than once`);
+  }
+  annotations.set(op.name, {
+    title: op.properties.title,
+    description: op.properties.description,
+    schema: op.properties.schema as AnnotationState['schema'],
+  });
+}
+
+function applyDeclareLabel(
+  labels: Map<string, LabelState>,
+  op: OpDeclareLabelV1,
+): void {
+  if (labels.has(op.name)) {
+    throw new InputError(`Label "${op.name}" is declared more than once`);
+  }
+  labels.set(op.name, {
+    title: op.properties.title,
+    description: op.properties.description,
+    schema: op.properties.schema as LabelState['schema'],
+  });
+}
+
+function applyDeclareTag(
+  tags: Map<string, TagState>,
+  op: OpDeclareTagV1,
+): void {
+  if (tags.has(op.name)) {
+    throw new InputError(`Tag "${op.name}" is declared more than once`);
+  }
+  tags.set(op.name, {
+    title: op.properties.title,
+    description: op.properties.description,
+  });
+}
+
+function buildFullSchema(options: {
+  kind: string;
+  apiVersion: string;
+  kindSchema: JsonObject;
+  annotations: Map<string, AnnotationState>;
+  labels: Map<string, LabelState>;
+  tags: Map<string, TagState>;
+}): JsonObject {
+  const annotationProperties: JsonObject = {};
+  for (const [name, state] of options.annotations) {
+    annotationProperties[name] = state.schema?.jsonSchema ?? { type: 'string' };
+  }
+
+  const labelProperties: JsonObject = {};
+  for (const [name, state] of options.labels) {
+    labelProperties[name] = state.schema?.jsonSchema ?? { type: 'string' };
+  }
+
+  const metadataSchema: JsonObject = {
+    type: 'object',
+    required: ['name'],
+    additionalProperties: true,
+    properties: {
+      uid: {
+        type: 'string',
+        description: 'A globally unique ID for the entity.',
+        minLength: 1,
+      },
+      etag: {
+        type: 'string',
+        description:
+          'An opaque string that changes for each update operation to any part of the entity, including metadata.',
+        minLength: 1,
+      },
+      name: {
+        type: 'string',
+        description:
+          'The name of the entity. Must be unique within the catalog at any given point in time, for any given namespace + kind pair.',
+        minLength: 1,
+      },
+      namespace: {
+        type: 'string',
+        description: 'The namespace that the entity belongs to.',
+        default: 'default',
+        minLength: 1,
+      },
+      title: {
+        type: 'string',
+        description:
+          'A display name of the entity, to be presented in user interfaces instead of the name property, when available.',
+        minLength: 1,
+      },
+      description: {
+        type: 'string',
+        description:
+          'A short (typically relatively few words, on one line) description of the entity.',
+      },
+      annotations: {
+        type: 'object',
+        description:
+          'Key/value pairs of non-identifying auxiliary information attached to the entity.',
+        additionalProperties: { type: 'string' },
+        ...(Object.keys(annotationProperties).length > 0
+          ? { properties: annotationProperties }
+          : {}),
+      },
+      labels: {
+        type: 'object',
+        description:
+          'Key/value pairs of identifying information attached to the entity.',
+        additionalProperties: { type: 'string' },
+        ...(Object.keys(labelProperties).length > 0
+          ? { properties: labelProperties }
+          : {}),
+      },
+      tags: {
+        type: 'array',
+        description:
+          'A list of single-valued strings, to for example classify catalog entities in various ways.',
+        items: { type: 'string', minLength: 1 },
+      },
+      links: {
+        type: 'array',
+        description: 'A list of external hyperlinks related to the entity.',
+        items: {
+          type: 'object',
+          required: ['url'],
+          properties: {
+            url: { type: 'string', minLength: 1 },
+            title: { type: 'string', minLength: 1 },
+            icon: { type: 'string', minLength: 1 },
+            type: { type: 'string', minLength: 1 },
+          },
+        },
+      },
+    },
+  };
+
+  return {
+    type: 'object',
+    properties: {
+      apiVersion: { const: options.apiVersion },
+      kind: { const: options.kind },
+      metadata: metadataSchema,
+      ...((options.kindSchema as any).properties ?? {}),
+    },
+    required: [
+      'apiVersion',
+      'kind',
+      'metadata',
+      ...((options.kindSchema as any).required ?? []),
+    ],
+  };
+}
+
 // #region Main compilation
 
 /**
@@ -267,11 +443,23 @@ export function compileCatalogModel(
   const sortedOps = sortOps(allOps);
 
   // Apply ops in order
+  const annotations = new Map<string, AnnotationState>();
+  const labels = new Map<string, LabelState>();
+  const tags = new Map<string, TagState>();
   const kinds = new Map<string, KindState>();
   const relations = new Map<string, RelationState>();
 
   for (const op of sortedOps) {
     switch (op.op) {
+      case 'declareAnnotation.v1':
+        applyDeclareAnnotation(annotations, op);
+        break;
+      case 'declareLabel.v1':
+        applyDeclareLabel(labels, op);
+        break;
+      case 'declareTag.v1':
+        applyDeclareTag(tags, op);
+        break;
       case 'declareKind.v1':
         applyDeclareKind(kinds, op);
         break;
@@ -313,12 +501,12 @@ export function compileCatalogModel(
         );
       }
 
-      // Look up the specific spec type, falling back to the default (undefined key)
-      let specType = version.specTypes.get(type);
-      if (!specType && type !== undefined) {
-        specType = version.specTypes.get(undefined);
+      // Look up the specific kind, falling back to the default (undefined key)
+      let specificKind = version.specTypes.get(type);
+      if (!specificKind && type !== undefined) {
+        specificKind = version.specTypes.get(undefined);
       }
-      if (!specType) {
+      if (!specificKind) {
         throw new TypeError(
           `Kind "${options.kind}" version "${version.name}" exists, but has no matching spec type`,
         );
@@ -331,14 +519,21 @@ export function compileCatalogModel(
           singular: kindState.singular,
           plural: kindState.plural,
         },
-        relationFields: (specType.relationFields ?? []).map(f => ({
+        relationFields: (specificKind.relationFields ?? []).map(f => ({
           path: f.selector.path,
-          relation: f.selector.path, // TODO: link to actual relation type
+          relation: f.relation,
           defaultKind: f.defaultKind,
           defaultNamespace: f.defaultNamespace,
           allowedKinds: f.allowedKinds,
         })),
-        jsonSchema: specType.jsonSchema,
+        jsonSchema: buildFullSchema({
+          kind: options.kind,
+          apiVersion: version.apiVersion,
+          kindSchema: specificKind.jsonSchema,
+          annotations,
+          labels,
+          tags,
+        }),
       };
     },
 
