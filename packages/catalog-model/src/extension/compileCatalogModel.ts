@@ -32,6 +32,8 @@ import { OpUpdateRelationV1 } from './operations/updateRelation';
 import {
   CatalogModel,
   CatalogModelExtension,
+  CatalogModelKind,
+  CatalogModelRelation,
   OpaqueCatalogModelExtension,
 } from './types';
 
@@ -403,21 +405,20 @@ function buildFullSchema(options: {
     },
   };
 
-  return {
+  const generatedSchema: JsonObject = {
     type: 'object',
+    required: ['apiVersion', 'kind', 'metadata'],
     properties: {
       apiVersion: { const: options.apiVersion },
       kind: { const: options.kind },
       metadata: metadataSchema,
-      ...((options.kindSchema as any).properties ?? {}),
     },
-    required: [
-      'apiVersion',
-      'kind',
-      'metadata',
-      ...((options.kindSchema as any).required ?? []),
-    ],
   };
+
+  // The kind schema is the base, and the generated schema (apiVersion, kind,
+  // metadata) takes priority in case of overlap — though they should not
+  // overlap in practice.
+  return mergeJsonSchemas(options.kindSchema, generatedSchema);
 }
 
 // #region Main compilation
@@ -483,15 +484,67 @@ export function compileCatalogModel(
     }
   }
 
+  // Precompute the CatalogModelKind output for each kind/version/specType
+  // combination, so getKind can just look it up.
+  // Key structure: "Kind\0apiVersion\0specType" (specType may be empty)
+  const compiledKinds = new Map<string, CatalogModelKind>();
+  for (const [kindName, kindState] of kinds) {
+    for (const version of kindState.versions.values()) {
+      for (const [specType, specificKind] of version.specTypes) {
+        const key = `${kindName}\0${version.apiVersion}\0${specType ?? ''}`;
+        compiledKinds.set(key, {
+          apiVersions: [version.apiVersion],
+          names: {
+            kind: kindName,
+            singular: kindState.singular,
+            plural: kindState.plural,
+          },
+          relationFields: (specificKind.relationFields ?? []).map(f => ({
+            path: f.selector.path,
+            relation: f.relation,
+            defaultKind: f.defaultKind,
+            defaultNamespace: f.defaultNamespace,
+            allowedKinds: f.allowedKinds,
+          })),
+          jsonSchema: buildFullSchema({
+            kind: kindName,
+            apiVersion: version.apiVersion,
+            kindSchema: specificKind.jsonSchema,
+            annotations,
+            labels,
+            tags,
+          }),
+        });
+      }
+    }
+  }
+
+  // Precompute the relations per kind, so getRelations can just look them up.
+  const compiledRelations = new Map<string, CatalogModelRelation[]>();
+  for (const kindName of kinds.keys()) {
+    compiledRelations.set(
+      kindName,
+      [...relations.values()]
+        .filter(r => r.fromKinds.has(kindName))
+        .map(r => ({
+          fromKind: [...r.fromKinds],
+          toKind: [...r.toKinds],
+          comment: r.comment,
+          forward: r.forward,
+          reverse: r.reverse,
+        })),
+    );
+  }
+
   return {
     getKind(options) {
       const type = options.spec?.type;
 
-      const kindState = kinds.get(options.kind);
-      if (!kindState) {
+      if (!kinds.has(options.kind)) {
         return undefined;
       }
 
+      const kindState = kinds.get(options.kind)!;
       const version = [...kindState.versions.values()].find(
         v => v.apiVersion === options.apiVersion,
       );
@@ -501,55 +554,29 @@ export function compileCatalogModel(
         );
       }
 
-      // Look up the specific kind, falling back to the default (undefined key)
-      let specificKind = version.specTypes.get(type);
-      if (!specificKind && type !== undefined) {
-        specificKind = version.specTypes.get(undefined);
-      }
-      if (!specificKind) {
-        throw new TypeError(
-          `Kind "${options.kind}" version "${version.name}" exists, but has no matching spec type`,
-        );
+      const key = `${options.kind}\0${version.apiVersion}\0${type ?? ''}`;
+      const result = compiledKinds.get(key);
+      if (result) {
+        return result;
       }
 
-      return {
-        apiVersions: [version.apiVersion],
-        names: {
-          kind: options.kind,
-          singular: kindState.singular,
-          plural: kindState.plural,
-        },
-        relationFields: (specificKind.relationFields ?? []).map(f => ({
-          path: f.selector.path,
-          relation: f.relation,
-          defaultKind: f.defaultKind,
-          defaultNamespace: f.defaultNamespace,
-          allowedKinds: f.allowedKinds,
-        })),
-        jsonSchema: buildFullSchema({
-          kind: options.kind,
-          apiVersion: version.apiVersion,
-          kindSchema: specificKind.jsonSchema,
-          annotations,
-          labels,
-          tags,
-        }),
-      };
+      // Fall back to the default (undefined) spec type
+      if (type !== undefined) {
+        const fallback = compiledKinds.get(
+          `${options.kind}\0${version.apiVersion}\0`,
+        );
+        if (fallback) {
+          return fallback;
+        }
+      }
+
+      throw new TypeError(
+        `Kind "${options.kind}" version "${version.name}" exists, but has no matching spec type`,
+      );
     },
 
     getRelations(options) {
-      if (!kinds.has(options.kind)) {
-        return undefined;
-      }
-      return [...relations.values()]
-        .filter(r => r.fromKinds.has(options.kind))
-        .map(r => ({
-          fromKind: [...r.fromKinds],
-          toKind: [...r.toKinds],
-          comment: r.comment,
-          forward: r.forward,
-          reverse: r.reverse,
-        }));
+      return compiledRelations.get(options.kind);
     },
   };
 }
