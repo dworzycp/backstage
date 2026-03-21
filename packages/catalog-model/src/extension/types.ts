@@ -181,24 +181,22 @@ export interface CatalogModelRelation {
    */
   toKind: string[];
   /**
-   * A human-readable comment describing the relation.
+   * A human-readable description of the relation.
    */
-  comment: string;
+  description: string;
   /**
    * The forward direction of this relation.
    */
   forward: {
     type: string;
-    singular: string;
-    plural: string;
+    title: string;
   };
   /**
    * The reverse direction of this relation.
    */
   reverse: {
     type: string;
-    singular: string;
-    plural: string;
+    title: string;
   };
 }
 

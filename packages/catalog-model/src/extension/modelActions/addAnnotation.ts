@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+import { InputError } from '@backstage/errors';
+import { validateMetaSchema } from '../jsonSchema/validateMetaSchema';
 import { CatalogModelOp } from '../operations';
 import { createDeclareAnnotationOp } from '../operations/declareAnnotation';
 
@@ -55,6 +57,14 @@ export interface CatalogModelAnnotationDefinition {
 export function opsFromCatalogModelAnnotation(
   annotation: CatalogModelAnnotationDefinition,
 ): CatalogModelOp[] {
+  if (annotation.schema) {
+    validateMetaSchema(annotation.schema.jsonSchema);
+    if (annotation.schema.jsonSchema.type !== 'string') {
+      throw new InputError(
+        `Annotation "${annotation.name}" schema must have "type": "string" at the root, only string values are supported`,
+      );
+    }
+  }
   return [
     createDeclareAnnotationOp({
       name: annotation.name,

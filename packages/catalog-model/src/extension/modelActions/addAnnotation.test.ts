@@ -64,4 +64,18 @@ describe('opsFromCatalogModelAnnotation', () => {
       },
     ]);
   });
+
+  it('should reject a schema with a non-string type', () => {
+    expect(() =>
+      opsFromCatalogModelAnnotation({
+        name: 'example.com/count',
+        description: 'A count.',
+        schema: {
+          jsonSchema: {
+            type: 'number',
+          },
+        },
+      }),
+    ).toThrow(/only string values are supported/);
+  });
 });

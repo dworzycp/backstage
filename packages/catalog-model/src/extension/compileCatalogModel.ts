@@ -61,9 +61,9 @@ interface SpecTypeState {
 interface RelationState {
   fromKinds: Set<string>;
   toKinds: Set<string>;
-  comment: string;
-  forward: { type: string; singular: string; plural: string };
-  reverse: { type: string; singular: string; plural: string };
+  description: string;
+  forward: { type: string; title: string };
+  reverse: { type: string; title: string };
 }
 
 interface AnnotationState {
@@ -164,16 +164,14 @@ function applyDeclareRelation(
     relations.set(op.type, {
       fromKinds: new Set([op.fromKind]),
       toKinds: new Set([op.toKind]),
-      comment: op.properties.comment,
+      description: op.properties.description,
       forward: {
         type: op.type,
-        singular: op.properties.singular,
-        plural: op.properties.plural,
+        title: op.properties.title,
       },
       reverse: {
         type: op.properties.reverseType,
-        singular: op.properties.singular,
-        plural: op.properties.plural,
+        title: op.properties.title,
       },
     });
   }
@@ -253,16 +251,12 @@ function applyUpdateRelation(
   if (op.properties.reverseType !== undefined) {
     relation.reverse.type = op.properties.reverseType;
   }
-  if (op.properties.singular !== undefined) {
-    relation.forward.singular = op.properties.singular;
-    relation.reverse.singular = op.properties.singular;
+  if (op.properties.title !== undefined) {
+    relation.forward.title = op.properties.title;
+    relation.reverse.title = op.properties.title;
   }
-  if (op.properties.plural !== undefined) {
-    relation.forward.plural = op.properties.plural;
-    relation.reverse.plural = op.properties.plural;
-  }
-  if (op.properties.comment !== undefined) {
-    relation.comment = op.properties.comment;
+  if (op.properties.description !== undefined) {
+    relation.description = op.properties.description;
   }
 }
 
@@ -529,7 +523,7 @@ export function compileCatalogModel(
         .map(r => ({
           fromKind: [...r.fromKinds],
           toKind: [...r.toKinds],
-          comment: r.comment,
+          description: r.description,
           forward: r.forward,
           reverse: r.reverse,
         })),

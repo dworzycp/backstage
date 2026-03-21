@@ -36,10 +36,10 @@ export interface CatalogModelUpdateRelationPairDefinition {
   toKind: string | string[];
 
   /**
-   * A human-readable comment describing the relation. Specify this if you want
+   * A human-readable description of the relation. Specify this if you want
    * to override the default value.
    */
-  comment?: string;
+  description?: string;
 
   /**
    * The names for the forward direction (from the current entity toward the one
@@ -51,25 +51,10 @@ export interface CatalogModelUpdateRelationPairDefinition {
      */
     type: string;
     /**
-     * The singular human-readable form of the relation name, e.g. "owner".
+     * A human-readable title for the relation type, e.g. "owned by".
      * Specify this if you want to override the default value.
-     *
-     * @remarks
-     *
-     * This represents the count of the other end of the relation - essentially
-     * based on how many relations of this type that are present.
      */
-    singular?: string;
-    /**
-     * The plural human-readable form of the relation name, e.g. "owners".
-     * Specify this if you want to override the default value.
-     *
-     * @remarks
-     *
-     * This represents the count of the other end of the relation - essentially
-     * based on how many relations of this type that are present.
-     */
-    plural?: string;
+    title?: string;
   };
 
   /**
@@ -83,26 +68,10 @@ export interface CatalogModelUpdateRelationPairDefinition {
      */
     type?: string;
     /**
-     * The singular human-readable form of the relation name, e.g. "owns".
+     * A human-readable title for the relation type, e.g. "owner of".
      * Specify this if you want to override the default value.
-     *
-     * @remarks
-     *
-     * This represents the count of the other end of the relation - essentially
-     * based on how many relations of this type that are present.
      */
-    singular?: string;
-    /**
-     * The plural human-readable form of the relation name, e.g. "owns". Specify
-     * this if you want to override the default value.
-     *
-     * @remarks
-     *
-     * This represents the count of the other end of the relation -
-     * essentially based on how many relations of this type that are
-     * present.
-     */
-    plural?: string;
+    title?: string;
   };
 }
 
@@ -121,9 +90,8 @@ export function opsFromCatalogModelUpdateRelationPair(
           toKind: secondKind,
           properties: {
             reverseType: relationPair.reverse.type,
-            singular: relationPair.forward.singular,
-            plural: relationPair.forward.plural,
-            comment: relationPair.comment,
+            title: relationPair.forward.title,
+            description: relationPair.description,
           },
         }),
       );
@@ -138,9 +106,8 @@ export function opsFromCatalogModelUpdateRelationPair(
             toKind: firstKind,
             properties: {
               reverseType: relationPair.forward.type,
-              singular: relationPair.forward.singular,
-              plural: relationPair.forward.plural,
-              comment: relationPair.comment,
+              title: relationPair.reverse.title,
+              description: relationPair.description,
             },
           }),
         );

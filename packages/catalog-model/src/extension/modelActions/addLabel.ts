@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+import { InputError } from '@backstage/errors';
+import { validateMetaSchema } from '../jsonSchema/validateMetaSchema';
 import { CatalogModelOp } from '../operations';
 import { createDeclareLabelOp } from '../operations/declareLabel';
 
@@ -55,6 +57,14 @@ export interface CatalogModelLabelDefinition {
 export function opsFromCatalogModelLabel(
   label: CatalogModelLabelDefinition,
 ): CatalogModelOp[] {
+  if (label.schema) {
+    validateMetaSchema(label.schema.jsonSchema);
+    if (label.schema.jsonSchema.type !== 'string') {
+      throw new InputError(
+        `Label "${label.name}" schema must have "type": "string" at the root, only string values are supported`,
+      );
+    }
+  }
   return [
     createDeclareLabelOp({
       name: label.name,

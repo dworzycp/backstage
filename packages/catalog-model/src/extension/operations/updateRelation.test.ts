@@ -24,9 +24,8 @@ describe('createUpdateRelationOp', () => {
       toKind: 'Group',
       properties: {
         reverseType: 'ownerOf',
-        singular: 'owner',
-        plural: 'owners',
-        comment: 'The owner of the component',
+        title: 'owned by',
+        description: 'The owner of the component',
       },
     });
 
@@ -37,9 +36,8 @@ describe('createUpdateRelationOp', () => {
       toKind: 'Group',
       properties: {
         reverseType: 'ownerOf',
-        singular: 'owner',
-        plural: 'owners',
-        comment: 'The owner of the component',
+        title: 'owned by',
+        description: 'The owner of the component',
       },
     });
   });

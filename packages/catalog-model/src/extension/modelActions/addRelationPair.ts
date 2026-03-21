@@ -36,9 +36,9 @@ export interface CatalogModelRelationPairDefinition {
   toKind: string | string[];
 
   /**
-   * A human-readable comment describing the relation.
+   * A human-readable description of the relation.
    */
-  comment: string;
+  description: string;
 
   /**
    * The names for the forward direction (from the current entity toward
@@ -50,25 +50,9 @@ export interface CatalogModelRelationPairDefinition {
      */
     type: string;
     /**
-     * The singular human-readable form of the relation name, e.g. "owner".
-     *
-     * @remarks
-     *
-     * This represents the count of the other end of the relation -
-     * essentially based on how many relations of this type that are
-     * present.
+     * A human-readable title for the relation type, e.g. "owned by".
      */
-    singular: string;
-    /**
-     * The plural human-readable form of the relation name, e.g. "owners".
-     *
-     * @remarks
-     *
-     * This represents the count of the other end of the relation -
-     * essentially based on how many relations of this type that are
-     * present.
-     */
-    plural: string;
+    title: string;
   };
 
   /**
@@ -81,25 +65,9 @@ export interface CatalogModelRelationPairDefinition {
      */
     type: string;
     /**
-     * The singular human-readable form of the relation name, e.g. "owns".
-     *
-     * @remarks
-     *
-     * This represents the count of the other end of the relation -
-     * essentially based on how many relations of this type that are
-     * present.
+     * A human-readable title for the relation type, e.g. "owner of".
      */
-    singular: string;
-    /**
-     * The plural human-readable form of the relation name, e.g. "owns".
-     *
-     * @remarks
-     *
-     * This represents the count of the other end of the relation -
-     * essentially based on how many relations of this type that are
-     * present.
-     */
-    plural: string;
+    title: string;
   };
 }
 
@@ -118,9 +86,8 @@ export function opsFromCatalogModelRelationPair(
           toKind: secondKind,
           properties: {
             reverseType: relationPair.reverse.type,
-            singular: relationPair.forward.singular,
-            plural: relationPair.forward.plural,
-            comment: relationPair.comment,
+            title: relationPair.forward.title,
+            description: relationPair.description,
           },
         }),
       );
@@ -131,9 +98,8 @@ export function opsFromCatalogModelRelationPair(
           toKind: firstKind,
           properties: {
             reverseType: relationPair.forward.type,
-            singular: relationPair.forward.singular,
-            plural: relationPair.forward.plural,
-            comment: relationPair.comment,
+            title: relationPair.reverse.title,
+            description: relationPair.description,
           },
         }),
       );

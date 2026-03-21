@@ -24,9 +24,8 @@ describe('createDeclareRelationOp', () => {
       toKind: 'Group',
       properties: {
         reverseType: 'ownerOf',
-        singular: 'owner',
-        plural: 'owners',
-        comment: 'The owner of the component',
+        title: 'owned by',
+        description: 'The owner of the component',
       },
     });
 
@@ -37,9 +36,8 @@ describe('createDeclareRelationOp', () => {
       toKind: 'Group',
       properties: {
         reverseType: 'ownerOf',
-        singular: 'owner',
-        plural: 'owners',
-        comment: 'The owner of the component',
+        title: 'owned by',
+        description: 'The owner of the component',
       },
     });
   });
@@ -54,7 +52,7 @@ describe('createDeclareRelationOp', () => {
           reverseType: 'ownerOf',
           singular: 'owner',
           plural: 'owners',
-          comment: 'The owner',
+          description: 'The owner',
         },
         extra: 'should be rejected',
       } as any),
@@ -69,10 +67,9 @@ describe('createDeclareRelationOp', () => {
         toKind: 'Group',
         properties: {
           reverseType: 'ownerOf',
-          singular: 'owner',
         },
       } as any),
-    ).toThrow(/plural/);
+    ).toThrow(/title/);
   });
 
   it('should throw on wrong field types', () => {
@@ -85,7 +82,7 @@ describe('createDeclareRelationOp', () => {
           reverseType: 'ownerOf',
           singular: 'owner',
           plural: 'owners',
-          comment: 'The owner',
+          description: 'The owner',
         },
       } as any),
     ).toThrow(/fromKind/);
