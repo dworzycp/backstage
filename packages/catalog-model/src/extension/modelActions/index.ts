@@ -18,9 +18,14 @@ export { type CatalogModelAnnotationDefinition } from './addAnnotation';
 export {
   type CatalogModelKindDefinition,
   type CatalogModelKindRelationFieldDefinition,
+  type CatalogModelKindVersionDefinition,
 } from './addKind';
 export { type CatalogModelLabelDefinition } from './addLabel';
 export { type CatalogModelRelationPairDefinition } from './addRelationPair';
+export { type CatalogModelRemoveKindDefinition } from './removeKind';
 export { type CatalogModelTagDefinition } from './addTag';
-export { type CatalogModelUpdateKindDefinition } from './updateKind';
+export {
+  type CatalogModelUpdateKindDefinition,
+  type CatalogModelUpdateKindVersionDefinition,
+} from './updateKind';
 export { type CatalogModelUpdateRelationPairDefinition } from './updateRelationPair';

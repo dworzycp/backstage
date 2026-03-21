@@ -14,11 +14,14 @@
  * limitations under the License.
  */
 
+import { validateMetaSchema } from '../jsonSchema/validateMetaSchema';
 import { CatalogModelOp } from '../operations';
 import { createUpdateKindOp } from '../operations/updateKind';
+import { createUpdateKindVersionOp } from '../operations/updateKindVersion';
+import { CatalogModelKindRelationFieldDefinition } from './addKind';
 
 /**
- * The definition of a catalog model kind, roughly resembling a JSON Schema.
+ * The definition of updates to a catalog model kind.
  *
  * @alpha
  */
@@ -50,6 +53,48 @@ export interface CatalogModelUpdateKindDefinition {
    * default value.
    */
   description?: string;
+
+  /**
+   * Update one or more versions of the kind's actual schema shape.
+   */
+  versions?: CatalogModelUpdateKindVersionDefinition[];
+}
+
+/**
+ * The definition of updates to a specific version of a catalog model kind.
+ *
+ * @alpha
+ */
+export interface CatalogModelUpdateKindVersionDefinition {
+  /**
+   * The specific version name or names to update, e.g. "v1alpha1" or
+   * ["v1alpha1", "v1beta1"].
+   */
+  name: string | string[];
+
+  /**
+   * The spec types that this version update applies to.
+   */
+  specTypes?: string[];
+
+  /**
+   * A short description of this particular version (and type, where
+   * applicable). Specify this if you want to override the default value.
+   */
+  description?: string;
+
+  /**
+   * The fields that shall be used to generate relations, if any. Specify this
+   * if you want to override the default value.
+   */
+  relationFields?: CatalogModelKindRelationFieldDefinition[];
+
+  /**
+   * The JSON schema to deep merge with the existing schema for this version.
+   */
+  schema?: {
+    jsonSchema: Record<string, unknown>;
+  };
 }
 
 export function opsFromCatalogModelUpdateKind(
@@ -70,7 +115,30 @@ export function opsFromCatalogModelUpdateKind(
     );
   }
 
-  // TODO: Can this same op update the schema too?
+  for (const version of kind.versions ?? []) {
+    if (version.schema) {
+      validateMetaSchema(version.schema.jsonSchema);
+    }
+    const names = Array.isArray(version.name) ? version.name : [version.name];
+    for (const name of names) {
+      for (const specType of version.specTypes ?? [undefined]) {
+        ops.push(
+          createUpdateKindVersionOp({
+            kind: kind.names.kind,
+            name,
+            specType: specType,
+            properties: {
+              description: version.description,
+              relationFields: version.relationFields,
+              schema: version.schema
+                ? { jsonSchema: version.schema.jsonSchema as any }
+                : undefined,
+            },
+          }),
+        );
+      }
+    }
+  }
 
   return ops;
 }

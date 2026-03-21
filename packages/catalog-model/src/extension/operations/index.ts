@@ -20,6 +20,7 @@ import { OpDeclareKindVersionV1 } from './declareKindVersion';
 import { OpDeclareLabelV1 } from './declareLabel';
 import { OpDeclareRelationV1 } from './declareRelation';
 import { OpDeclareTagV1 } from './declareTag';
+import { OpRemoveKindV1 } from './removeKind';
 import { OpUpdateKindV1 } from './updateKind';
 import { OpUpdateKindVersionV1 } from './updateKindVersion';
 import { OpUpdateRelationV1 } from './updateRelation';
@@ -31,6 +32,7 @@ export type {
   OpDeclareLabelV1,
   OpDeclareRelationV1,
   OpDeclareTagV1,
+  OpRemoveKindV1,
   OpUpdateKindV1,
   OpUpdateKindVersionV1,
   OpUpdateRelationV1,
@@ -43,6 +45,7 @@ export type CatalogModelOp =
   | OpDeclareTagV1
   | OpDeclareKindVersionV1
   | OpDeclareRelationV1
+  | OpRemoveKindV1
   | OpUpdateKindV1
   | OpUpdateKindVersionV1
   | OpUpdateRelationV1;

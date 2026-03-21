@@ -68,46 +68,53 @@ export interface CatalogModelKindDefinition {
   /**
    * Declare one or more versions of the kind's actual schema shape.
    */
-  versions?: Array<{
-    /**
-     * The specific version name or names, e.g. "v1alpha1" or
-     * ["v1alpha1", "v1beta1"]. The kind group and the version name form the
-     * full apiVersion, e.g. "backstage.io/v1alpha1".
-     */
-    name: string | string[];
+  versions?: CatalogModelKindVersionDefinition[];
+}
 
-    /**
-     * The spec types that this version applies to.
-     *
-     * @remarks
-     *
-     * This can be used to make kinds whose spec effectively are discriminated
-     * unions. If you don't specify this, the schema will apply to a spec that
-     * has no type given at all, or to those where the type is not among the set
-     * of any other known declared spec types.
-     *
-     * TODO: Should this be more like `matcher: { [path: string]: string }`, or
-     * even a full JSON Schema that can be used in an "if"?
-     */
-    specTypes?: string[];
+/**
+ * The definition of one or more specific versions of a catalog model kind.
+ *
+ * @alpha
+ */
+export interface CatalogModelKindVersionDefinition {
+  /**
+   * The specific version name or names, e.g. "v1alpha1" or
+   * ["v1alpha1", "v1beta1"]. The kind group and the version name form the
+   * full apiVersion, e.g. "backstage.io/v1alpha1".
+   */
+  name: string | string[];
 
-    /**
-     * A short description of this particular version (and type, where applicable).
-     */
-    description?: string;
+  /**
+   * The spec types that this version applies to.
+   *
+   * @remarks
+   *
+   * This can be used to make kinds whose spec effectively are discriminated
+   * unions. If you don't specify this, the schema will apply to a spec that
+   * has no type given at all, or to those where the type is not among the set
+   * of any other known declared spec types.
+   *
+   * TODO: Should this be more like `matcher: { [path: string]: string }`, or
+   * even a full JSON Schema that can be used in an "if"?
+   */
+  specTypes?: string[];
 
-    /**
-     * The fields that shall be used to generate relations, if any.
-     *
-     * TODO: Should this be not an array, to be more easily mergeable? Or should
-     * we just have a custom merge strategy for them
-     */
-    relationFields?: CatalogModelKindRelationFieldDefinition[];
+  /**
+   * A short description of this particular version (and type, where applicable).
+   */
+  description?: string;
 
-    schema: {
-      jsonSchema: CatalogModelKindRootSchema;
-    };
-  }>;
+  /**
+   * The fields that shall be used to generate relations, if any.
+   *
+   * TODO: Should this be not an array, to be more easily mergeable? Or should
+   * we just have a custom merge strategy for them
+   */
+  relationFields?: CatalogModelKindRelationFieldDefinition[];
+
+  schema: {
+    jsonSchema: CatalogModelKindRootSchema;
+  };
 }
 
 /**

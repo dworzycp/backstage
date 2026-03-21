@@ -61,25 +61,17 @@ const componentKind: CatalogModelKind = {
 const ownedByRelation: CatalogModelRelation = {
   fromKind: ['Component'],
   toKind: ['Group', 'User'],
-  comment: 'Ownership',
-  forward: { type: 'ownedBy', singular: 'owner', plural: 'owners' },
-  reverse: { type: 'ownerOf', singular: 'owns', plural: 'owns' },
+  description: 'Ownership',
+  forward: { type: 'ownedBy', title: 'owned by' },
+  reverse: { type: 'ownerOf', title: 'owner of' },
 };
 
 const dependsOnRelation: CatalogModelRelation = {
   fromKind: ['Component'],
   toKind: ['Component', 'Resource'],
-  comment: 'Dependency',
-  forward: {
-    type: 'dependsOn',
-    singular: 'dependency',
-    plural: 'dependencies',
-  },
-  reverse: {
-    type: 'dependencyOf',
-    singular: 'dependant',
-    plural: 'dependants',
-  },
+  description: 'Dependency',
+  forward: { type: 'dependsOn', title: 'depends on' },
+  reverse: { type: 'dependencyOf', title: 'dependency of' },
 };
 
 function createModel(overrides?: {

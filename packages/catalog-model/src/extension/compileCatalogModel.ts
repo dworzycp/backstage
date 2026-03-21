@@ -26,6 +26,7 @@ import { OpDeclareKindVersionV1 } from './operations/declareKindVersion';
 import { OpDeclareLabelV1 } from './operations/declareLabel';
 import { OpDeclareRelationV1 } from './operations/declareRelation';
 import { OpDeclareTagV1 } from './operations/declareTag';
+import { OpRemoveKindV1 } from './operations/removeKind';
 import { OpUpdateKindV1 } from './operations/updateKind';
 import { OpUpdateKindVersionV1 } from './operations/updateKindVersion';
 import { OpUpdateRelationV1 } from './operations/updateRelation';
@@ -260,6 +261,16 @@ function applyUpdateRelation(
   }
 }
 
+function applyRemoveKind(
+  kinds: Map<string, KindState>,
+  op: OpRemoveKindV1,
+): void {
+  if (!kinds.has(op.kind)) {
+    throw new InputError(`Cannot remove unknown kind "${op.kind}"`);
+  }
+  kinds.delete(op.kind);
+}
+
 function applyDeclareAnnotation(
   annotations: Map<string, AnnotationState>,
   op: OpDeclareAnnotationV1,
@@ -472,6 +483,9 @@ export function compileCatalogModel(
         break;
       case 'updateRelation.v1':
         applyUpdateRelation(relations, op);
+        break;
+      case 'removeKind.v1':
+        applyRemoveKind(kinds, op);
         break;
       default:
         throw new InputError(`Unknown op type "${(op as CatalogModelOp).op}"`);

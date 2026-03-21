@@ -21,6 +21,7 @@ import { opDeclareLabelV1Schema } from './declareLabel';
 import { opDeclareRelationV1Schema } from './declareRelation';
 import { opDeclareTagV1Schema } from './declareTag';
 import { CatalogModelOp } from './index';
+import { opRemoveKindV1Schema } from './removeKind';
 import { opUpdateKindV1Schema } from './updateKind';
 import { opUpdateKindVersionV1Schema } from './updateKindVersion';
 import { opUpdateRelationV1Schema } from './updateRelation';
@@ -89,6 +90,11 @@ export const ops: {
     op: 'updateRelation.v1',
     order: 8,
     parse: data => opUpdateRelationV1Schema.parse(data),
+  },
+  'removeKind.v1': {
+    op: 'removeKind.v1',
+    order: 9,
+    parse: data => opRemoveKindV1Schema.parse(data),
   },
 };
 

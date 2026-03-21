@@ -31,6 +31,10 @@ import {
   opsFromCatalogModelRelationPair,
 } from './modelActions/addRelationPair';
 import {
+  type CatalogModelRemoveKindDefinition,
+  opsFromCatalogModelRemoveKind,
+} from './modelActions/removeKind';
+import {
   type CatalogModelTagDefinition,
   opsFromCatalogModelTag,
 } from './modelActions/addTag';
@@ -69,6 +73,16 @@ export interface CatalogModelExtensionBuilder {
    * Adds a new label to the model.
    */
   addLabel(label: CatalogModelLabelDefinition): void;
+
+  /**
+   * Updates an existing kind in the model.
+   */
+  updateKind(kind: CatalogModelUpdateKindDefinition): void;
+
+  /**
+   * Removes a kind entirely from the model.
+   */
+  removeKind(kind: CatalogModelRemoveKindDefinition): void;
 
   /**
    * Adds a new relation pair to the model.
@@ -122,6 +136,11 @@ export class DefaultCatalogModelExtensionBuilder
 
   updateKind(kind: CatalogModelUpdateKindDefinition): void {
     const ops = opsFromCatalogModelUpdateKind(kind);
+    this.#ops.push(...ops);
+  }
+
+  removeKind(kind: CatalogModelRemoveKindDefinition): void {
+    const ops = opsFromCatalogModelRemoveKind(kind);
     this.#ops.push(...ops);
   }
 
