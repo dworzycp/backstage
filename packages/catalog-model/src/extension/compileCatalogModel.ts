@@ -494,9 +494,14 @@ function buildFullSchema(options: {
     },
   };
 
+  const kindRequired = Array.isArray(options.kindSchema.required)
+    ? (options.kindSchema.required as string[])
+    : [];
+
   const generatedSchema: JsonObject = {
     type: 'object',
-    required: ['apiVersion', 'kind', 'metadata'],
+    required: [...new Set([...kindRequired, 'apiVersion', 'kind', 'metadata'])],
+    additionalProperties: false,
     properties: {
       apiVersion: { const: options.apiVersion },
       kind: { const: options.kind },
