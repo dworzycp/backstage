@@ -23,6 +23,7 @@ import { locationEntityModel } from './kinds/LocationEntityV1alpha1';
 import { resourceEntityModel } from './kinds/ResourceEntityV1alpha1';
 import { systemEntityModel } from './kinds/SystemEntityV1alpha1';
 import { userEntityModel } from './kinds/UserEntityV1alpha1';
+import { wellKnownRelationsModel } from './kinds/relations';
 
 export type { AlphaEntity } from './entity/AlphaEntity';
 export type {
@@ -32,6 +33,9 @@ export type {
 } from './entity/EntityStatus';
 export * from './extension';
 
+/**
+ * @alpha
+ */
 export const defaultCatalogEntityModel = createCatalogModelExtension(
   'Backstage Default Entity Model',
   builder => {
@@ -43,5 +47,6 @@ export const defaultCatalogEntityModel = createCatalogModelExtension(
     builder.import(resourceEntityModel);
     builder.import(systemEntityModel);
     builder.import(userEntityModel);
+    builder.import(wellKnownRelationsModel);
   },
 );

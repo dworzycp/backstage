@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+import { createCatalogModelExtension } from '../extension/createCatalogModelExtension';
+
 /*
 Naming rules for relations in priority order:
 
@@ -136,3 +138,170 @@ export const RELATION_PART_OF = 'partOf';
  * @public
  */
 export const RELATION_HAS_PART = 'hasPart';
+
+/**
+ * Extends the catalog model with the well-known Backstage relation pairs.
+ */
+export const wellKnownRelationsModel = createCatalogModelExtension(
+  'Well-Known Relations',
+  builder => {
+    builder.addRelationPair({
+      fromKind: [
+        'API',
+        'Component',
+        'Domain',
+        'Group',
+        'Location',
+        'Resource',
+        'System',
+        'User',
+      ],
+      toKind: ['Group', 'User'],
+      comment:
+        'An ownership relation where the owner is usually an organizational entity (user or group), and the other entity can be anything.',
+      forward: {
+        type: 'ownedBy',
+        singular: 'owner',
+        plural: 'owners',
+      },
+      reverse: {
+        type: 'ownerOf',
+        singular: 'owns',
+        plural: 'owns',
+      },
+    });
+
+    builder.addRelationPair({
+      fromKind: 'Component',
+      toKind: 'API',
+      comment:
+        'A relation from a component to an API it provides for consumption by others.',
+      forward: {
+        type: 'providesApi',
+        singular: 'provided API',
+        plural: 'provided APIs',
+      },
+      reverse: {
+        type: 'apiProvidedBy',
+        singular: 'API provider',
+        plural: 'API providers',
+      },
+    });
+
+    builder.addRelationPair({
+      fromKind: 'Component',
+      toKind: 'API',
+      comment: 'A relation from a component to an API it consumes.',
+      forward: {
+        type: 'consumesApi',
+        singular: 'consumed API',
+        plural: 'consumed APIs',
+      },
+      reverse: {
+        type: 'apiConsumedBy',
+        singular: 'API consumer',
+        plural: 'API consumers',
+      },
+    });
+
+    builder.addRelationPair({
+      fromKind: ['Component', 'Resource'],
+      toKind: ['Component', 'Resource'],
+      comment:
+        'A dependency relation expressing that an entity needs another entity to function.',
+      forward: {
+        type: 'dependsOn',
+        singular: 'dependency',
+        plural: 'dependencies',
+      },
+      reverse: {
+        type: 'dependencyOf',
+        singular: 'dependent',
+        plural: 'dependents',
+      },
+    });
+
+    builder.addRelationPair({
+      fromKind: 'Group',
+      toKind: 'Group',
+      comment:
+        'A parent/child relation to build up a tree, used for example to describe the organizational structure between groups.',
+      forward: {
+        type: 'parentOf',
+        singular: 'child',
+        plural: 'children',
+      },
+      reverse: {
+        type: 'childOf',
+        singular: 'parent',
+        plural: 'parents',
+      },
+    });
+
+    builder.addRelationPair({
+      fromKind: 'User',
+      toKind: 'Group',
+      comment: 'A membership relation, typically for users in a group.',
+      forward: {
+        type: 'memberOf',
+        singular: 'group membership',
+        plural: 'group memberships',
+      },
+      reverse: {
+        type: 'hasMember',
+        singular: 'member',
+        plural: 'members',
+      },
+    });
+
+    builder.addRelationPair({
+      fromKind: ['Component', 'API', 'Resource'],
+      toKind: ['Component', 'System'],
+      comment:
+        'A part/whole relation where a component, API, or resource belongs to a system or a component is a subcomponent of another.',
+      forward: {
+        type: 'partOf',
+        singular: 'part of',
+        plural: 'part of',
+      },
+      reverse: {
+        type: 'hasPart',
+        singular: 'part',
+        plural: 'parts',
+      },
+    });
+
+    builder.addRelationPair({
+      fromKind: 'System',
+      toKind: 'Domain',
+      comment: 'A part/whole relation where a system belongs to a domain.',
+      forward: {
+        type: 'partOf',
+        singular: 'part of',
+        plural: 'part of',
+      },
+      reverse: {
+        type: 'hasPart',
+        singular: 'part',
+        plural: 'parts',
+      },
+    });
+
+    builder.addRelationPair({
+      fromKind: 'Domain',
+      toKind: 'Domain',
+      comment:
+        'A part/whole relation where a domain is a subdomain of another domain.',
+      forward: {
+        type: 'partOf',
+        singular: 'part of',
+        plural: 'part of',
+      },
+      reverse: {
+        type: 'hasPart',
+        singular: 'part',
+        plural: 'parts',
+      },
+    });
+  },
+);

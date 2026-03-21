@@ -6,7 +6,6 @@
 import { Entity } from '@backstage/catalog-model';
 import { JsonObject } from '@backstage/types';
 import { SerializedError } from '@backstage/errors';
-import { z } from 'zod/v3';
 
 // @alpha
 export interface AlphaEntity extends Entity {
@@ -15,41 +14,41 @@ export interface AlphaEntity extends Entity {
 
 // @alpha
 export interface CatalogModel {
-  getKind(
-    options:
-      | {
-          kind: string;
-          apiVersion: string;
-          type?: string;
-        }
-      | {
-          kind: string;
-          apiVersion: string;
-          spec: {
-            type?: string;
-          };
-        },
-  ): CatalogModelKind | undefined;
-  getRelations(kind: string): CatalogModelRelation[] | undefined;
-  // Warning: (ae-forgotten-export) The symbol "CatalogModelOp" needs to be exported by the entry point alpha.d.ts
-  ops: ReadonlyArray<CatalogModelOp>;
+  getKind(options: {
+    kind: string;
+    apiVersion: string;
+    spec?: {
+      type?: string;
+    };
+  }): CatalogModelKind | undefined;
+  getRelations(options: { kind: string }): CatalogModelRelation[] | undefined;
+}
+
+// @alpha
+export interface CatalogModelAnnotationDefinition {
+  description: string;
+  name: string;
+  schema?: {
+    jsonSchema: Record<string, unknown>;
+  };
+  title?: string;
 }
 
 // @alpha
 export interface CatalogModelExtension {
   // (undocumented)
   readonly $$type: '@backstage/CatalogModelExtension';
-  // (undocumented)
-  readonly modelName?: string;
-  // (undocumented)
-  readonly pluginId: string;
+  readonly modelName: string;
 }
 
 // @alpha
 export interface CatalogModelExtensionBuilder {
+  addAnnotation(annotation: CatalogModelAnnotationDefinition): void;
   addKind(kind: CatalogModelKindDefinition): void;
+  addLabel(label: CatalogModelLabelDefinition): void;
   addRelationPair(relation: CatalogModelRelationPairDefinition): void;
-  updateKind(kind: CatalogModelUpdateKindDefinition): void;
+  addTag(tag: CatalogModelTagDefinition): void;
+  import(extension: CatalogModelExtension): void;
   updateRelationPair(relation: CatalogModelUpdateRelationPairDefinition): void;
 }
 
@@ -81,7 +80,7 @@ export interface CatalogModelKindDefinition {
     plural: string;
   };
   versions?: Array<{
-    name: string;
+    name: string | string[];
     specTypes?: string[];
     description?: string;
     relationFields?: CatalogModelKindRelationFieldDefinition[];
@@ -96,6 +95,7 @@ export interface CatalogModelKindRelationFieldDefinition {
   allowedKinds?: string[];
   defaultKind?: string;
   defaultNamespace?: 'default' | 'inherit';
+  relation: string;
   selector: {
     path: string;
   };
@@ -145,6 +145,16 @@ export interface CatalogModelKindRootSchema {
 }
 
 // @alpha
+export interface CatalogModelLabelDefinition {
+  description: string;
+  name: string;
+  schema?: {
+    jsonSchema: Record<string, unknown>;
+  };
+  title?: string;
+}
+
+// @alpha
 export interface CatalogModelRelation {
   comment: string;
   forward: {
@@ -179,6 +189,13 @@ export interface CatalogModelRelationPairDefinition {
 }
 
 // @alpha
+export interface CatalogModelTagDefinition {
+  description: string;
+  name: string;
+  title?: string;
+}
+
+// @alpha
 export interface CatalogModelUpdateKindDefinition {
   description?: string;
   names: {
@@ -207,16 +224,24 @@ export interface CatalogModelUpdateRelationPairDefinition {
 
 // @alpha
 export function compileCatalogModel(
-  inputs: Iterable<CatalogModelExtension | CatalogModel>,
+  inputs: Iterable<CatalogModelExtension>,
 ): CatalogModel;
 
 // @alpha
+export function createCatalogModelExtension(
+  modelName: string,
+  model: (model: CatalogModelExtensionBuilder) => void,
+): CatalogModelExtension;
+
+// @alpha
 export function createCatalogModelExtensionBuilder(options: {
-  pluginId: string;
-  modelName?: string;
+  modelName: string;
 }): CatalogModelExtensionBuilder & {
   build(): CatalogModelExtension;
 };
+
+// @alpha (undocumented)
+export const defaultCatalogEntityModel: CatalogModelExtension;
 
 // @alpha
 export type EntityStatus = {

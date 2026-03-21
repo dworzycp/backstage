@@ -4,6 +4,7 @@
 
 ```ts
 import { BasicPermission } from '@backstage/plugin-permission-common';
+import { CatalogModelExtension } from '@backstage/catalog-model/alpha';
 import { ResourcePermission } from '@backstage/plugin-permission-common';
 
 // @alpha
@@ -49,6 +50,9 @@ export const taskReadPermission: ResourcePermission<'scaffolder-task'>;
 
 // @alpha
 export const templateManagementPermission: BasicPermission;
+
+// @alpha
+export const templateModelExtension: CatalogModelExtension;
 
 // @alpha
 export const templateParameterReadPermission: ResourcePermission<'scaffolder-template'>;

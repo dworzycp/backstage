@@ -52,7 +52,8 @@ export const catalogModelExtensionPoint: ExtensionPoint<CatalogModelExtensionPoi
 
 // @alpha
 export interface CatalogModelRegistryService {
-  registerExtension(extension: CatalogModelExtension): void;
+  // (undocumented)
+  register(extension: CatalogModelExtension): void;
 }
 
 // @alpha
