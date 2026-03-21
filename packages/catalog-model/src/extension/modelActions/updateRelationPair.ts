@@ -95,9 +95,6 @@ export function opsFromCatalogModelUpdateRelationPair(
           },
         }),
       );
-      // TODO(freben): This actually doesn't make much sense; the ability to
-      // only partially update the pair becomes weird since we don't know what
-      // the original type was. Well, the compile step will know, but still.
       if (relationPair.reverse.type) {
         ops.push(
           createUpdateRelationOp({

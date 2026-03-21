@@ -20,10 +20,16 @@ import { OpDeclareKindVersionV1 } from './declareKindVersion';
 import { OpDeclareLabelV1 } from './declareLabel';
 import { OpDeclareRelationV1 } from './declareRelation';
 import { OpDeclareTagV1 } from './declareTag';
+import { OpRemoveAnnotationV1 } from './removeAnnotation';
 import { OpRemoveKindV1 } from './removeKind';
+import { OpRemoveLabelV1 } from './removeLabel';
+import { OpRemoveTagV1 } from './removeTag';
+import { OpUpdateAnnotationV1 } from './updateAnnotation';
 import { OpUpdateKindV1 } from './updateKind';
 import { OpUpdateKindVersionV1 } from './updateKindVersion';
+import { OpUpdateLabelV1 } from './updateLabel';
 import { OpUpdateRelationV1 } from './updateRelation';
+import { OpUpdateTagV1 } from './updateTag';
 
 export type {
   OpDeclareAnnotationV1,
@@ -32,20 +38,32 @@ export type {
   OpDeclareLabelV1,
   OpDeclareRelationV1,
   OpDeclareTagV1,
+  OpRemoveAnnotationV1,
   OpRemoveKindV1,
+  OpRemoveLabelV1,
+  OpRemoveTagV1,
+  OpUpdateAnnotationV1,
   OpUpdateKindV1,
   OpUpdateKindVersionV1,
+  OpUpdateLabelV1,
   OpUpdateRelationV1,
+  OpUpdateTagV1,
 };
 
 export type CatalogModelOp =
   | OpDeclareAnnotationV1
   | OpDeclareKindV1
-  | OpDeclareLabelV1
-  | OpDeclareTagV1
   | OpDeclareKindVersionV1
+  | OpDeclareLabelV1
   | OpDeclareRelationV1
+  | OpDeclareTagV1
+  | OpRemoveAnnotationV1
   | OpRemoveKindV1
+  | OpRemoveLabelV1
+  | OpRemoveTagV1
+  | OpUpdateAnnotationV1
   | OpUpdateKindV1
   | OpUpdateKindVersionV1
-  | OpUpdateRelationV1;
+  | OpUpdateLabelV1
+  | OpUpdateRelationV1
+  | OpUpdateTagV1;

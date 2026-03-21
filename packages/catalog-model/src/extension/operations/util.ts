@@ -21,10 +21,16 @@ import { opDeclareLabelV1Schema } from './declareLabel';
 import { opDeclareRelationV1Schema } from './declareRelation';
 import { opDeclareTagV1Schema } from './declareTag';
 import { CatalogModelOp } from './index';
+import { opRemoveAnnotationV1Schema } from './removeAnnotation';
 import { opRemoveKindV1Schema } from './removeKind';
+import { opRemoveLabelV1Schema } from './removeLabel';
+import { opRemoveTagV1Schema } from './removeTag';
+import { opUpdateAnnotationV1Schema } from './updateAnnotation';
 import { opUpdateKindV1Schema } from './updateKind';
 import { opUpdateKindVersionV1Schema } from './updateKindVersion';
+import { opUpdateLabelV1Schema } from './updateLabel';
 import { opUpdateRelationV1Schema } from './updateRelation';
+import { opUpdateTagV1Schema } from './updateTag';
 import { isJsonObject } from '../jsonSchema/util';
 
 /**
@@ -76,24 +82,54 @@ export const ops: {
     order: 5,
     parse: data => opDeclareRelationV1Schema.parse(data),
   },
+  'updateAnnotation.v1': {
+    op: 'updateAnnotation.v1',
+    order: 6,
+    parse: data => opUpdateAnnotationV1Schema.parse(data),
+  },
+  'updateLabel.v1': {
+    op: 'updateLabel.v1',
+    order: 7,
+    parse: data => opUpdateLabelV1Schema.parse(data),
+  },
+  'updateTag.v1': {
+    op: 'updateTag.v1',
+    order: 8,
+    parse: data => opUpdateTagV1Schema.parse(data),
+  },
   'updateKind.v1': {
     op: 'updateKind.v1',
-    order: 6,
+    order: 9,
     parse: data => opUpdateKindV1Schema.parse(data),
   },
   'updateKindVersion.v1': {
     op: 'updateKindVersion.v1',
-    order: 7,
+    order: 10,
     parse: data => opUpdateKindVersionV1Schema.parse(data),
   },
   'updateRelation.v1': {
     op: 'updateRelation.v1',
-    order: 8,
+    order: 11,
     parse: data => opUpdateRelationV1Schema.parse(data),
+  },
+  'removeAnnotation.v1': {
+    op: 'removeAnnotation.v1',
+    order: 12,
+    parse: data => opRemoveAnnotationV1Schema.parse(data),
+  },
+  'removeLabel.v1': {
+    op: 'removeLabel.v1',
+    order: 13,
+    parse: data => opRemoveLabelV1Schema.parse(data),
+  },
+  'removeTag.v1': {
+    op: 'removeTag.v1',
+    order: 14,
+    parse: data => opRemoveTagV1Schema.parse(data),
   },
   'removeKind.v1': {
     op: 'removeKind.v1',
-    order: 9,
+    order: 15,
     parse: data => opRemoveKindV1Schema.parse(data),
   },
 };

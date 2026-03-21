@@ -31,21 +31,45 @@ import {
   opsFromCatalogModelRelationPair,
 } from './modelActions/addRelationPair';
 import {
+  type CatalogModelRemoveAnnotationDefinition,
+  opsFromCatalogModelRemoveAnnotation,
+} from './modelActions/removeAnnotation';
+import {
   type CatalogModelRemoveKindDefinition,
   opsFromCatalogModelRemoveKind,
 } from './modelActions/removeKind';
+import {
+  type CatalogModelRemoveLabelDefinition,
+  opsFromCatalogModelRemoveLabel,
+} from './modelActions/removeLabel';
+import {
+  type CatalogModelRemoveTagDefinition,
+  opsFromCatalogModelRemoveTag,
+} from './modelActions/removeTag';
 import {
   type CatalogModelTagDefinition,
   opsFromCatalogModelTag,
 } from './modelActions/addTag';
 import {
+  type CatalogModelUpdateAnnotationDefinition,
+  opsFromCatalogModelUpdateAnnotation,
+} from './modelActions/updateAnnotation';
+import {
   CatalogModelUpdateKindDefinition,
   opsFromCatalogModelUpdateKind,
 } from './modelActions/updateKind';
 import {
+  type CatalogModelUpdateLabelDefinition,
+  opsFromCatalogModelUpdateLabel,
+} from './modelActions/updateLabel';
+import {
   CatalogModelUpdateRelationPairDefinition,
   opsFromCatalogModelUpdateRelationPair,
 } from './modelActions/updateRelationPair';
+import {
+  type CatalogModelUpdateTagDefinition,
+  opsFromCatalogModelUpdateTag,
+} from './modelActions/updateTag';
 import { CatalogModelOp } from './operations';
 import { CatalogModelExtension, OpaqueCatalogModelExtension } from './types';
 
@@ -75,16 +99,6 @@ export interface CatalogModelExtensionBuilder {
   addLabel(label: CatalogModelLabelDefinition): void;
 
   /**
-   * Updates an existing kind in the model.
-   */
-  updateKind(kind: CatalogModelUpdateKindDefinition): void;
-
-  /**
-   * Removes a kind entirely from the model.
-   */
-  removeKind(kind: CatalogModelRemoveKindDefinition): void;
-
-  /**
    * Adds a new relation pair to the model.
    */
   addRelationPair(relation: CatalogModelRelationPairDefinition): void;
@@ -95,9 +109,49 @@ export interface CatalogModelExtensionBuilder {
   addTag(tag: CatalogModelTagDefinition): void;
 
   /**
+   * Updates an existing annotation in the model.
+   */
+  updateAnnotation(annotation: CatalogModelUpdateAnnotationDefinition): void;
+
+  /**
+   * Updates an existing label in the model.
+   */
+  updateLabel(label: CatalogModelUpdateLabelDefinition): void;
+
+  /**
+   * Updates an existing tag in the model.
+   */
+  updateTag(tag: CatalogModelUpdateTagDefinition): void;
+
+  /**
+   * Updates an existing kind in the model.
+   */
+  updateKind(kind: CatalogModelUpdateKindDefinition): void;
+
+  /**
    * Updates an existing relation pair in the model.
    */
   updateRelationPair(relation: CatalogModelUpdateRelationPairDefinition): void;
+
+  /**
+   * Removes an annotation from the model.
+   */
+  removeAnnotation(annotation: CatalogModelRemoveAnnotationDefinition): void;
+
+  /**
+   * Removes a label from the model.
+   */
+  removeLabel(label: CatalogModelRemoveLabelDefinition): void;
+
+  /**
+   * Removes a tag from the model.
+   */
+  removeTag(tag: CatalogModelRemoveTagDefinition): void;
+
+  /**
+   * Removes a kind entirely from the model.
+   */
+  removeKind(kind: CatalogModelRemoveKindDefinition): void;
 
   /**
    * Imports all operations from another catalog model extension into this one.
@@ -134,16 +188,6 @@ export class DefaultCatalogModelExtensionBuilder
     this.#ops.push(...ops);
   }
 
-  updateKind(kind: CatalogModelUpdateKindDefinition): void {
-    const ops = opsFromCatalogModelUpdateKind(kind);
-    this.#ops.push(...ops);
-  }
-
-  removeKind(kind: CatalogModelRemoveKindDefinition): void {
-    const ops = opsFromCatalogModelRemoveKind(kind);
-    this.#ops.push(...ops);
-  }
-
   addRelationPair(relation: CatalogModelRelationPairDefinition): void {
     const ops = opsFromCatalogModelRelationPair(relation);
     this.#ops.push(...ops);
@@ -154,8 +198,48 @@ export class DefaultCatalogModelExtensionBuilder
     this.#ops.push(...ops);
   }
 
+  updateAnnotation(annotation: CatalogModelUpdateAnnotationDefinition): void {
+    const ops = opsFromCatalogModelUpdateAnnotation(annotation);
+    this.#ops.push(...ops);
+  }
+
+  updateLabel(label: CatalogModelUpdateLabelDefinition): void {
+    const ops = opsFromCatalogModelUpdateLabel(label);
+    this.#ops.push(...ops);
+  }
+
+  updateTag(tag: CatalogModelUpdateTagDefinition): void {
+    const ops = opsFromCatalogModelUpdateTag(tag);
+    this.#ops.push(...ops);
+  }
+
+  updateKind(kind: CatalogModelUpdateKindDefinition): void {
+    const ops = opsFromCatalogModelUpdateKind(kind);
+    this.#ops.push(...ops);
+  }
+
   updateRelationPair(relation: CatalogModelUpdateRelationPairDefinition): void {
     const ops = opsFromCatalogModelUpdateRelationPair(relation);
+    this.#ops.push(...ops);
+  }
+
+  removeAnnotation(annotation: CatalogModelRemoveAnnotationDefinition): void {
+    const ops = opsFromCatalogModelRemoveAnnotation(annotation);
+    this.#ops.push(...ops);
+  }
+
+  removeLabel(label: CatalogModelRemoveLabelDefinition): void {
+    const ops = opsFromCatalogModelRemoveLabel(label);
+    this.#ops.push(...ops);
+  }
+
+  removeTag(tag: CatalogModelRemoveTagDefinition): void {
+    const ops = opsFromCatalogModelRemoveTag(tag);
+    this.#ops.push(...ops);
+  }
+
+  removeKind(kind: CatalogModelRemoveKindDefinition): void {
+    const ops = opsFromCatalogModelRemoveKind(kind);
     this.#ops.push(...ops);
   }
 

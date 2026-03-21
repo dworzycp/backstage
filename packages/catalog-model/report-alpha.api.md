@@ -49,7 +49,15 @@ export interface CatalogModelExtensionBuilder {
   addRelationPair(relation: CatalogModelRelationPairDefinition): void;
   addTag(tag: CatalogModelTagDefinition): void;
   import(extension: CatalogModelExtension): void;
+  removeAnnotation(annotation: CatalogModelRemoveAnnotationDefinition): void;
+  removeKind(kind: CatalogModelRemoveKindDefinition): void;
+  removeLabel(label: CatalogModelRemoveLabelDefinition): void;
+  removeTag(tag: CatalogModelRemoveTagDefinition): void;
+  updateAnnotation(annotation: CatalogModelUpdateAnnotationDefinition): void;
+  updateKind(kind: CatalogModelUpdateKindDefinition): void;
+  updateLabel(label: CatalogModelUpdateLabelDefinition): void;
   updateRelationPair(relation: CatalogModelUpdateRelationPairDefinition): void;
+  updateTag(tag: CatalogModelUpdateTagDefinition): void;
 }
 
 // @alpha
@@ -79,15 +87,7 @@ export interface CatalogModelKindDefinition {
     singular: string;
     plural: string;
   };
-  versions?: Array<{
-    name: string | string[];
-    specTypes?: string[];
-    description?: string;
-    relationFields?: CatalogModelKindRelationFieldDefinition[];
-    schema: {
-      jsonSchema: CatalogModelKindRootSchema;
-    };
-  }>;
+  versions?: CatalogModelKindVersionDefinition[];
 }
 
 // @alpha (undocumented)
@@ -145,6 +145,18 @@ export interface CatalogModelKindRootSchema {
 }
 
 // @alpha
+export interface CatalogModelKindVersionDefinition {
+  description?: string;
+  name: string | string[];
+  relationFields?: CatalogModelKindRelationFieldDefinition[];
+  // (undocumented)
+  schema: {
+    jsonSchema: CatalogModelKindRootSchema;
+  };
+  specTypes?: string[];
+}
+
+// @alpha
 export interface CatalogModelLabelDefinition {
   description: string;
   name: string;
@@ -156,42 +168,68 @@ export interface CatalogModelLabelDefinition {
 
 // @alpha
 export interface CatalogModelRelation {
-  comment: string;
+  description: string;
   forward: {
     type: string;
-    singular: string;
-    plural: string;
+    title: string;
   };
   fromKind: string[];
   reverse: {
     type: string;
-    singular: string;
-    plural: string;
+    title: string;
   };
   toKind: string[];
 }
 
 // @alpha
 export interface CatalogModelRelationPairDefinition {
-  comment: string;
+  description: string;
   forward: {
     type: string;
-    singular: string;
-    plural: string;
+    title: string;
   };
   fromKind: string | string[];
   reverse: {
     type: string;
-    singular: string;
-    plural: string;
+    title: string;
   };
   toKind: string | string[];
+}
+
+// @alpha
+export interface CatalogModelRemoveAnnotationDefinition {
+  name: string;
+}
+
+// @alpha
+export interface CatalogModelRemoveKindDefinition {
+  kind: string;
+}
+
+// @alpha
+export interface CatalogModelRemoveLabelDefinition {
+  name: string;
+}
+
+// @alpha
+export interface CatalogModelRemoveTagDefinition {
+  name: string;
 }
 
 // @alpha
 export interface CatalogModelTagDefinition {
   description: string;
   name: string;
+  title?: string;
+}
+
+// @alpha
+export interface CatalogModelUpdateAnnotationDefinition {
+  description?: string;
+  name: string;
+  schema?: {
+    jsonSchema: Record<string, unknown>;
+  };
   title?: string;
 }
 
@@ -203,23 +241,50 @@ export interface CatalogModelUpdateKindDefinition {
     singular?: string;
     plural?: string;
   };
+  versions?: CatalogModelUpdateKindVersionDefinition[];
+}
+
+// @alpha
+export interface CatalogModelUpdateKindVersionDefinition {
+  description?: string;
+  name: string | string[];
+  relationFields?: CatalogModelKindRelationFieldDefinition[];
+  schema?: {
+    jsonSchema: Record<string, unknown>;
+  };
+  specTypes?: string[];
+}
+
+// @alpha
+export interface CatalogModelUpdateLabelDefinition {
+  description?: string;
+  name: string;
+  schema?: {
+    jsonSchema: Record<string, unknown>;
+  };
+  title?: string;
 }
 
 // @alpha
 export interface CatalogModelUpdateRelationPairDefinition {
-  comment?: string;
+  description?: string;
   forward: {
     type: string;
-    singular?: string;
-    plural?: string;
+    title?: string;
   };
   fromKind: string | string[];
   reverse: {
     type?: string;
-    singular?: string;
-    plural?: string;
+    title?: string;
   };
   toKind: string | string[];
+}
+
+// @alpha
+export interface CatalogModelUpdateTagDefinition {
+  description?: string;
+  name: string;
+  title?: string;
 }
 
 // @alpha

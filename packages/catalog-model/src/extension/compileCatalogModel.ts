@@ -26,10 +26,16 @@ import { OpDeclareKindVersionV1 } from './operations/declareKindVersion';
 import { OpDeclareLabelV1 } from './operations/declareLabel';
 import { OpDeclareRelationV1 } from './operations/declareRelation';
 import { OpDeclareTagV1 } from './operations/declareTag';
+import { OpRemoveAnnotationV1 } from './operations/removeAnnotation';
 import { OpRemoveKindV1 } from './operations/removeKind';
+import { OpRemoveLabelV1 } from './operations/removeLabel';
+import { OpRemoveTagV1 } from './operations/removeTag';
+import { OpUpdateAnnotationV1 } from './operations/updateAnnotation';
 import { OpUpdateKindV1 } from './operations/updateKind';
 import { OpUpdateKindVersionV1 } from './operations/updateKindVersion';
+import { OpUpdateLabelV1 } from './operations/updateLabel';
 import { OpUpdateRelationV1 } from './operations/updateRelation';
+import { OpUpdateTagV1 } from './operations/updateTag';
 import {
   CatalogModel,
   CatalogModelExtension,
@@ -312,6 +318,84 @@ function applyDeclareTag(
   });
 }
 
+function applyUpdateAnnotation(
+  annotations: Map<string, AnnotationState>,
+  op: OpUpdateAnnotationV1,
+): void {
+  const annotation = annotations.get(op.name);
+  if (!annotation) {
+    throw new InputError(`Cannot update undeclared annotation "${op.name}"`);
+  }
+  if (op.properties.title !== undefined) {
+    annotation.title = op.properties.title;
+  }
+  if (op.properties.description !== undefined) {
+    annotation.description = op.properties.description;
+  }
+  if (op.properties.schema !== undefined) {
+    annotation.schema = op.properties.schema as AnnotationState['schema'];
+  }
+}
+
+function applyUpdateLabel(
+  labels: Map<string, LabelState>,
+  op: OpUpdateLabelV1,
+): void {
+  const label = labels.get(op.name);
+  if (!label) {
+    throw new InputError(`Cannot update undeclared label "${op.name}"`);
+  }
+  if (op.properties.title !== undefined) {
+    label.title = op.properties.title;
+  }
+  if (op.properties.description !== undefined) {
+    label.description = op.properties.description;
+  }
+  if (op.properties.schema !== undefined) {
+    label.schema = op.properties.schema as LabelState['schema'];
+  }
+}
+
+function applyUpdateTag(tags: Map<string, TagState>, op: OpUpdateTagV1): void {
+  const tag = tags.get(op.name);
+  if (!tag) {
+    throw new InputError(`Cannot update undeclared tag "${op.name}"`);
+  }
+  if (op.properties.title !== undefined) {
+    tag.title = op.properties.title;
+  }
+  if (op.properties.description !== undefined) {
+    tag.description = op.properties.description;
+  }
+}
+
+function applyRemoveAnnotation(
+  annotations: Map<string, AnnotationState>,
+  op: OpRemoveAnnotationV1,
+): void {
+  if (!annotations.has(op.name)) {
+    throw new InputError(`Cannot remove unknown annotation "${op.name}"`);
+  }
+  annotations.delete(op.name);
+}
+
+function applyRemoveLabel(
+  labels: Map<string, LabelState>,
+  op: OpRemoveLabelV1,
+): void {
+  if (!labels.has(op.name)) {
+    throw new InputError(`Cannot remove unknown label "${op.name}"`);
+  }
+  labels.delete(op.name);
+}
+
+function applyRemoveTag(tags: Map<string, TagState>, op: OpRemoveTagV1): void {
+  if (!tags.has(op.name)) {
+    throw new InputError(`Cannot remove unknown tag "${op.name}"`);
+  }
+  tags.delete(op.name);
+}
+
 function buildFullSchema(options: {
   kind: string;
   apiVersion: string;
@@ -475,6 +559,15 @@ export function compileCatalogModel(
       case 'declareRelation.v1':
         applyDeclareRelation(relations, op);
         break;
+      case 'updateAnnotation.v1':
+        applyUpdateAnnotation(annotations, op);
+        break;
+      case 'updateLabel.v1':
+        applyUpdateLabel(labels, op);
+        break;
+      case 'updateTag.v1':
+        applyUpdateTag(tags, op);
+        break;
       case 'updateKind.v1':
         applyUpdateKind(kinds, op);
         break;
@@ -483,6 +576,15 @@ export function compileCatalogModel(
         break;
       case 'updateRelation.v1':
         applyUpdateRelation(relations, op);
+        break;
+      case 'removeAnnotation.v1':
+        applyRemoveAnnotation(annotations, op);
+        break;
+      case 'removeLabel.v1':
+        applyRemoveLabel(labels, op);
+        break;
+      case 'removeTag.v1':
+        applyRemoveTag(tags, op);
         break;
       case 'removeKind.v1':
         applyRemoveKind(kinds, op);
