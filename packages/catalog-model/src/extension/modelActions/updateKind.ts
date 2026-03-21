@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import { CatalogModelKindRootSchema } from '../jsonSchema/validateKindRootSchemaSemantics';
 import { validateMetaSchema } from '../jsonSchema/validateMetaSchema';
 import { CatalogModelOp } from '../operations';
 import { createUpdateKindOp } from '../operations/updateKind';
@@ -73,9 +74,9 @@ export interface CatalogModelUpdateKindVersionDefinition {
   name: string | string[];
 
   /**
-   * The spec types that this version update applies to.
+   * The spec type or types that this version update applies to.
    */
-  specTypes?: string[];
+  specType?: string | string[];
 
   /**
    * A short description of this particular version (and type, where
@@ -93,7 +94,7 @@ export interface CatalogModelUpdateKindVersionDefinition {
    * The JSON schema to deep merge with the existing schema for this version.
    */
   schema?: {
-    jsonSchema: Record<string, unknown>;
+    jsonSchema: CatalogModelKindRootSchema;
   };
 }
 
@@ -121,7 +122,10 @@ export function opsFromCatalogModelUpdateKind(
     }
     const names = Array.isArray(version.name) ? version.name : [version.name];
     for (const name of names) {
-      for (const specType of version.specTypes ?? [undefined]) {
+      const specTypes = version.specType?.length
+        ? [version.specType].flat()
+        : [undefined];
+      for (const specType of specTypes) {
         ops.push(
           createUpdateKindVersionOp({
             kind: kind.names.kind,

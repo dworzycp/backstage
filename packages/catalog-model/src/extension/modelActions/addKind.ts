@@ -85,7 +85,7 @@ export interface CatalogModelKindVersionDefinition {
   name: string | string[];
 
   /**
-   * The spec types that this version applies to.
+   * The spec type or types that this version applies to.
    *
    * @remarks
    *
@@ -97,7 +97,7 @@ export interface CatalogModelKindVersionDefinition {
    * TODO: Should this be more like `matcher: { [path: string]: string }`, or
    * even a full JSON Schema that can be used in an "if"?
    */
-  specTypes?: string[];
+  specType?: string | string[];
 
   /**
    * A short description of this particular version (and type, where applicable).
@@ -140,12 +140,14 @@ export interface CatalogModelKindRelationFieldDefinition {
   defaultKind?: string;
   /**
    * If the given shorthand ref did not have a namespace, either inherit the
-   * namespace of the entity itself, or choose the default namespace.
+   * namespace of the entity itself, or choose the default namespace. If no
+   * default namespace is specified, the namespace of the entity itself is used.
    */
   defaultNamespace?: 'default' | 'inherit';
   /**
    * Only allow relations to be specified to the given kinds. This list must
-   * include the default kind, if any.
+   * include the default kind, if any. If no allowed kinds are specified, all
+   * kinds are.
    */
   allowedKinds?: string[];
 }
@@ -172,7 +174,10 @@ export function opsFromCatalogModelKind(
     validateKindRootSchemaSemantics(version.schema.jsonSchema);
     const names = Array.isArray(version.name) ? version.name : [version.name];
     for (const name of names) {
-      for (const specType of version.specTypes ?? [undefined]) {
+      const specTypes = version.specType
+        ? [version.specType].flat()
+        : [undefined];
+      for (const specType of specTypes) {
         ops.push(
           createDeclareKindVersionOp({
             kind: kind.names.kind,

@@ -51,7 +51,16 @@ describe('validateKindRootSchemaSemantics', () => {
   });
 
   it('should reject schemas that use structural keywords in the root', () => {
-    for (const keyword of ['allOf', 'oneOf', 'anyOf', 'if', 'else', 'then']) {
+    for (const keyword of [
+      'allOf',
+      'oneOf',
+      'anyOf',
+      'if',
+      'else',
+      'then',
+      'not',
+      '$ref',
+    ]) {
       expect(() =>
         validateKindRootSchemaSemantics({
           properties: { spec: { type: 'object' } },
@@ -103,7 +112,16 @@ describe('validateKindRootSchemaSemantics', () => {
   });
 
   it('should reject schemas that use structural keywords in root field schemas', () => {
-    for (const keyword of ['allOf', 'oneOf', 'anyOf', 'if', 'else', 'then']) {
+    for (const keyword of [
+      'allOf',
+      'oneOf',
+      'anyOf',
+      'if',
+      'else',
+      'then',
+      'not',
+      '$ref',
+    ]) {
       expect(() =>
         validateKindRootSchemaSemantics({
           type: 'object',

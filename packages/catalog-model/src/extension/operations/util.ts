@@ -13,7 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 import { InputError } from '@backstage/errors';
+import { isJsonObject } from '../jsonSchema/util';
 import { opDeclareAnnotationV1Schema } from './declareAnnotation';
 import { opDeclareKindV1Schema } from './declareKind';
 import { opDeclareKindVersionV1Schema } from './declareKindVersion';
@@ -31,7 +33,6 @@ import { opUpdateKindVersionV1Schema } from './updateKindVersion';
 import { opUpdateLabelV1Schema } from './updateLabel';
 import { opUpdateRelationV1Schema } from './updateRelation';
 import { opUpdateTagV1Schema } from './updateTag';
-import { isJsonObject } from '../jsonSchema/util';
 
 /**
  * Descriptor for a catalog model operation, mapping it to its parser.

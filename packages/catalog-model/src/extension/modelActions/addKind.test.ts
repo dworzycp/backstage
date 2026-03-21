@@ -29,7 +29,7 @@ describe('opsFromCatalogModelKind', () => {
       versions: [
         {
           name: 'v1alpha1',
-          specTypes: ['service'],
+          specType: 'service',
           description: 'A backend service',
           relationFields: [
             {

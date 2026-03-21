@@ -458,18 +458,14 @@ function buildFullSchema(options: {
         description:
           'Key/value pairs of non-identifying auxiliary information attached to the entity.',
         additionalProperties: { type: 'string' },
-        ...(Object.keys(annotationProperties).length > 0
-          ? { properties: annotationProperties }
-          : {}),
+        properties: annotationProperties,
       },
       labels: {
         type: 'object',
         description:
           'Key/value pairs of identifying information attached to the entity.',
         additionalProperties: { type: 'string' },
-        ...(Object.keys(labelProperties).length > 0
-          ? { properties: labelProperties }
-          : {}),
+        properties: labelProperties,
       },
       tags: {
         type: 'array',
@@ -641,13 +637,20 @@ export function compileCatalogModel(
       kindName,
       [...relations.values()]
         .filter(r => r.fromKinds.has(kindName))
-        .map(r => ({
-          fromKind: [...r.fromKinds],
-          toKind: [...r.toKinds],
-          description: r.description,
-          forward: r.forward,
-          reverse: r.reverse,
-        })),
+        .map(r => {
+          // Look up the reverse relation entry to get its actual title
+          const reverseEntry = relations.get(r.reverse.type);
+          return {
+            fromKind: [...r.fromKinds],
+            toKind: [...r.toKinds],
+            description: r.description,
+            forward: r.forward,
+            reverse: {
+              type: r.reverse.type,
+              title: reverseEntry?.forward.title ?? r.reverse.title,
+            },
+          };
+        }),
     );
   }
 

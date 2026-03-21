@@ -15,7 +15,51 @@
  */
 
 import { JsonObject } from '@backstage/types';
+import { z } from 'zod/v3';
 
 export function isJsonObject(value?: unknown): value is JsonObject {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
 }
+
+/**
+ * Asserts that the value is a JSON object recorsively containing only JSON safe
+ * values and no circular references.
+ */
+export function isJsonObjectDeep(value: unknown): value is JsonObject {
+  if (!isJsonObject(value)) {
+    return false;
+  }
+  const seen = new Set<unknown>();
+  return Object.values(value).every(v => isJsonValueDeep(v, seen));
+}
+
+function isJsonValueDeep(value: unknown, seen: Set<unknown>): boolean {
+  if (
+    value === null ||
+    typeof value === 'string' ||
+    typeof value === 'number' ||
+    typeof value === 'boolean'
+  ) {
+    return true;
+  }
+  if (typeof value !== 'object') {
+    return false;
+  }
+  if (seen.has(value)) {
+    return false;
+  }
+  seen.add(value);
+  if (Array.isArray(value)) {
+    return value.every(v => isJsonValueDeep(v, seen));
+  }
+  if (isJsonObject(value)) {
+    return Object.values(value).every(v => isJsonValueDeep(v, seen));
+  }
+  return false;
+}
+
+export const jsonObjectSchema = z
+  .record(z.string(), z.unknown())
+  .refine((x): x is JsonObject => isJsonObjectDeep(x), {
+    message: 'Invalid JSON schema',
+  });

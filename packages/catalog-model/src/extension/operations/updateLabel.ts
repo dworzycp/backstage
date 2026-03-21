@@ -15,6 +15,7 @@
  */
 
 import { z } from 'zod/v3';
+import { jsonObjectSchema } from '../jsonSchema/util';
 
 /**
  * Update the properties of an existing label.
@@ -50,7 +51,7 @@ export const opUpdateLabelV1Schema = z.strictObject({
      */
     schema: z
       .strictObject({
-        jsonSchema: z.record(z.string(), z.unknown()),
+        jsonSchema: jsonObjectSchema,
       })
       .optional(),
   }),

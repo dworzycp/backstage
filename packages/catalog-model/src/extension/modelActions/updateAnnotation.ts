@@ -18,6 +18,7 @@ import { InputError } from '@backstage/errors';
 import { validateMetaSchema } from '../jsonSchema/validateMetaSchema';
 import { CatalogModelOp } from '../operations';
 import { createUpdateAnnotationOp } from '../operations/updateAnnotation';
+import { JsonObject } from '@backstage/types';
 
 /**
  * The definition of updates to a catalog model annotation.
@@ -50,7 +51,7 @@ export interface CatalogModelUpdateAnnotationDefinition {
    * particular schema.
    */
   schema?: {
-    jsonSchema: Record<string, unknown>;
+    jsonSchema: JsonObject;
   };
 }
 

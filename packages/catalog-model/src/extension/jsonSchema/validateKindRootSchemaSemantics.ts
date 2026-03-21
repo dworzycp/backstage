@@ -15,9 +15,15 @@
  */
 
 import { InputError } from '@backstage/errors';
-import { isJsonObject } from './util';
+import { JsonObject, JsonValue } from '@backstage/types';
+import { isJsonObject, isJsonObjectDeep } from './util';
 
-const FORBIDDEN_SCHEMA_ROOT_FIELDS = ['kind', 'apiVersion', 'metadata', '$ref'];
+const FORBIDDEN_SCHEMA_ROOT_FIELDS = [
+  'kind',
+  'apiVersion',
+  'metadata',
+  '$ref',
+] as const;
 const FORBIDDEN_SCHEMA_STRUCTURAL_FIELDS = [
   'allOf',
   'oneOf',
@@ -25,8 +31,9 @@ const FORBIDDEN_SCHEMA_STRUCTURAL_FIELDS = [
   'if',
   'else',
   'then',
+  'not',
   '$ref',
-];
+] as const;
 
 /**
  * When declaring the JSON schema model for a kind, this is the type that you
@@ -38,7 +45,7 @@ const FORBIDDEN_SCHEMA_STRUCTURAL_FIELDS = [
  * It forbids some patterns that would make the schema hard or impossible to
  * inspect / merge properly.
  */
-export interface CatalogModelKindRootSchema {
+export interface CatalogModelKindRootSchema extends JsonObject {
   type: 'object';
 
   // NOTE: These should match the FORBIDDEN_SCHEMA_STRUCTURAL_FIELDS list above
@@ -48,9 +55,11 @@ export interface CatalogModelKindRootSchema {
   if?: never;
   then?: never;
   else?: never;
+  not?: never;
   $ref?: never;
 
-  properties:
+  properties?:
+    | undefined
     | {
         // NOTE: These should match the FORBIDDEN_SCHEMA_ROOT_FIELDS list above
         kind?: never;
@@ -68,14 +77,14 @@ export interface CatalogModelKindRootSchema {
               if?: never;
               then?: never;
               else?: never;
+              not?: never;
               $ref?: never;
 
-              [key: string]: unknown;
+              [key: string]: JsonValue | undefined;
             };
-      }
-    | undefined;
+      };
 
-  [key: string]: unknown | undefined;
+  [key: string]: JsonValue | undefined;
 }
 
 /**
@@ -97,7 +106,7 @@ export interface CatalogModelKindRootSchema {
 export function validateKindRootSchemaSemantics(
   schema: unknown,
 ): schema is CatalogModelKindRootSchema {
-  if (!isJsonObject(schema)) {
+  if (!isJsonObjectDeep(schema)) {
     throw new InputError('Schema must be an object');
   }
 

@@ -134,3 +134,510 @@ describe('compileCatalogModel', () => {
     ).toBeUndefined();
   });
 });
+
+describe('compileCatalogModel integration', () => {
+  it('should support the full add/update/remove lifecycle', () => {
+    // Step 1: Add one of everything
+    const base = createCatalogModelExtension('Base', builder => {
+      builder.addKind({
+        group: 'example.com',
+        names: { kind: 'Widget', singular: 'widget', plural: 'widgets' },
+        description: 'A widget',
+        versions: [
+          {
+            name: 'v1alpha1',
+            relationFields: [
+              {
+                selector: { path: 'spec.owner' },
+                relation: 'ownedBy',
+                defaultKind: 'Group',
+                defaultNamespace: 'inherit',
+                allowedKinds: ['Group', 'User'],
+              },
+            ],
+            schema: {
+              jsonSchema: {
+                type: 'object',
+                required: ['spec'],
+                properties: {
+                  spec: {
+                    type: 'object',
+                    required: ['size'],
+                    properties: {
+                      size: { type: 'number' },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        ],
+      });
+
+      builder.addRelationPair({
+        fromKind: 'Widget',
+        toKind: ['Group', 'User'],
+        description: 'Ownership',
+        forward: { type: 'ownedBy', title: 'owned by' },
+        reverse: { type: 'ownerOf', title: 'owner of' },
+      });
+
+      builder.addAnnotation({
+        name: 'example.com/docs-url',
+        title: 'Docs URL',
+        description: 'Link to docs',
+        schema: { jsonSchema: { type: 'string', minLength: 1 } },
+      });
+
+      builder.addLabel({
+        name: 'example.com/tier',
+        title: 'Tier',
+        description: 'Service tier',
+        schema: { jsonSchema: { type: 'string', enum: ['gold', 'silver'] } },
+      });
+
+      builder.addTag({
+        name: 'production',
+        title: 'Production',
+        description: 'Production-ready',
+      });
+    });
+
+    // Verify base state
+    const model1 = compileCatalogModel([base]);
+
+    const kind1 = model1.getKind({
+      kind: 'Widget',
+      apiVersion: 'example.com/v1alpha1',
+    });
+    expect(kind1).toEqual({
+      apiVersions: ['example.com/v1alpha1'],
+      names: { kind: 'Widget', singular: 'widget', plural: 'widgets' },
+      relationFields: [
+        {
+          path: 'spec.owner',
+          relation: 'ownedBy',
+          defaultKind: 'Group',
+          defaultNamespace: 'inherit',
+          allowedKinds: ['Group', 'User'],
+        },
+      ],
+      jsonSchema: {
+        type: 'object',
+        required: ['spec', 'apiVersion', 'kind', 'metadata'],
+        additionalProperties: false,
+        properties: {
+          apiVersion: { const: 'example.com/v1alpha1' },
+          kind: { const: 'Widget' },
+          metadata: {
+            type: 'object',
+            required: ['name'],
+            additionalProperties: true,
+            properties: {
+              uid: {
+                type: 'string',
+                description: 'A globally unique ID for the entity.',
+                minLength: 1,
+              },
+              etag: {
+                type: 'string',
+                description:
+                  'An opaque string that changes for each update operation to any part of the entity, including metadata.',
+                minLength: 1,
+              },
+              name: {
+                type: 'string',
+                description:
+                  'The name of the entity. Must be unique within the catalog at any given point in time, for any given namespace + kind pair.',
+                minLength: 1,
+              },
+              namespace: {
+                type: 'string',
+                description: 'The namespace that the entity belongs to.',
+                default: 'default',
+                minLength: 1,
+              },
+              title: {
+                type: 'string',
+                description:
+                  'A display name of the entity, to be presented in user interfaces instead of the name property, when available.',
+                minLength: 1,
+              },
+              description: {
+                type: 'string',
+                description:
+                  'A short (typically relatively few words, on one line) description of the entity.',
+              },
+              annotations: {
+                type: 'object',
+                description:
+                  'Key/value pairs of non-identifying auxiliary information attached to the entity.',
+                additionalProperties: { type: 'string' },
+                properties: {
+                  'example.com/docs-url': { type: 'string', minLength: 1 },
+                },
+              },
+              labels: {
+                type: 'object',
+                description:
+                  'Key/value pairs of identifying information attached to the entity.',
+                additionalProperties: { type: 'string' },
+                properties: {
+                  'example.com/tier': {
+                    type: 'string',
+                    enum: ['gold', 'silver'],
+                  },
+                },
+              },
+              tags: {
+                type: 'array',
+                description:
+                  'A list of single-valued strings, to for example classify catalog entities in various ways.',
+                items: { type: 'string', minLength: 1 },
+              },
+              links: {
+                type: 'array',
+                description:
+                  'A list of external hyperlinks related to the entity.',
+                items: {
+                  type: 'object',
+                  required: ['url'],
+                  properties: {
+                    url: { type: 'string', minLength: 1 },
+                    title: { type: 'string', minLength: 1 },
+                    icon: { type: 'string', minLength: 1 },
+                    type: { type: 'string', minLength: 1 },
+                  },
+                },
+              },
+            },
+          },
+          spec: {
+            type: 'object',
+            required: ['size'],
+            properties: {
+              size: { type: 'number' },
+            },
+          },
+        },
+      },
+    });
+
+    expect(model1.getRelations({ kind: 'Widget' })).toEqual([
+      {
+        fromKind: ['Widget'],
+        toKind: ['Group', 'User'],
+        description: 'Ownership',
+        forward: { type: 'ownedBy', title: 'owned by' },
+        reverse: { type: 'ownerOf', title: 'owner of' },
+      },
+    ]);
+
+    // Step 2: Update everything
+    const updates = createCatalogModelExtension('Updates', builder => {
+      builder.updateKind({
+        names: { kind: 'Widget', singular: 'gizmo', plural: 'gizmos' },
+        description: 'An updated widget',
+        versions: [
+          {
+            name: 'v1alpha1',
+            schema: {
+              jsonSchema: {
+                type: 'object',
+                properties: {
+                  spec: {
+                    type: 'object',
+                    properties: {
+                      color: { type: 'string' },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        ],
+      });
+
+      builder.updateAnnotation({
+        name: 'example.com/docs-url',
+        title: 'Documentation URL',
+        description: 'Updated link to docs',
+      });
+
+      builder.updateLabel({
+        name: 'example.com/tier',
+        description: 'Updated tier',
+      });
+
+      builder.updateTag({
+        name: 'production',
+        description: 'Updated production tag',
+      });
+    });
+
+    const model2 = compileCatalogModel([base, updates]);
+
+    const kind2 = model2.getKind({
+      kind: 'Widget',
+      apiVersion: 'example.com/v1alpha1',
+    });
+    expect(kind2).toEqual({
+      apiVersions: ['example.com/v1alpha1'],
+      names: { kind: 'Widget', singular: 'gizmo', plural: 'gizmos' },
+      relationFields: [
+        {
+          path: 'spec.owner',
+          relation: 'ownedBy',
+          defaultKind: 'Group',
+          defaultNamespace: 'inherit',
+          allowedKinds: ['Group', 'User'],
+        },
+      ],
+      jsonSchema: {
+        type: 'object',
+        required: ['spec', 'apiVersion', 'kind', 'metadata'],
+        additionalProperties: false,
+        properties: {
+          apiVersion: { const: 'example.com/v1alpha1' },
+          kind: { const: 'Widget' },
+          metadata: {
+            type: 'object',
+            required: ['name'],
+            additionalProperties: true,
+            properties: {
+              uid: {
+                type: 'string',
+                description: 'A globally unique ID for the entity.',
+                minLength: 1,
+              },
+              etag: {
+                type: 'string',
+                description:
+                  'An opaque string that changes for each update operation to any part of the entity, including metadata.',
+                minLength: 1,
+              },
+              name: {
+                type: 'string',
+                description:
+                  'The name of the entity. Must be unique within the catalog at any given point in time, for any given namespace + kind pair.',
+                minLength: 1,
+              },
+              namespace: {
+                type: 'string',
+                description: 'The namespace that the entity belongs to.',
+                default: 'default',
+                minLength: 1,
+              },
+              title: {
+                type: 'string',
+                description:
+                  'A display name of the entity, to be presented in user interfaces instead of the name property, when available.',
+                minLength: 1,
+              },
+              description: {
+                type: 'string',
+                description:
+                  'A short (typically relatively few words, on one line) description of the entity.',
+              },
+              annotations: {
+                type: 'object',
+                description:
+                  'Key/value pairs of non-identifying auxiliary information attached to the entity.',
+                additionalProperties: { type: 'string' },
+                properties: {
+                  'example.com/docs-url': { type: 'string', minLength: 1 },
+                },
+              },
+              labels: {
+                type: 'object',
+                description:
+                  'Key/value pairs of identifying information attached to the entity.',
+                additionalProperties: { type: 'string' },
+                properties: {
+                  'example.com/tier': {
+                    type: 'string',
+                    enum: ['gold', 'silver'],
+                  },
+                },
+              },
+              tags: {
+                type: 'array',
+                description:
+                  'A list of single-valued strings, to for example classify catalog entities in various ways.',
+                items: { type: 'string', minLength: 1 },
+              },
+              links: {
+                type: 'array',
+                description:
+                  'A list of external hyperlinks related to the entity.',
+                items: {
+                  type: 'object',
+                  required: ['url'],
+                  properties: {
+                    url: { type: 'string', minLength: 1 },
+                    title: { type: 'string', minLength: 1 },
+                    icon: { type: 'string', minLength: 1 },
+                    type: { type: 'string', minLength: 1 },
+                  },
+                },
+              },
+            },
+          },
+          spec: {
+            type: 'object',
+            required: ['size'],
+            properties: {
+              size: { type: 'number' },
+              color: { type: 'string' },
+            },
+          },
+        },
+      },
+    });
+
+    expect(model2.getRelations({ kind: 'Widget' })).toEqual([
+      {
+        fromKind: ['Widget'],
+        toKind: ['Group', 'User'],
+        description: 'Ownership',
+        forward: { type: 'ownedBy', title: 'owned by' },
+        reverse: { type: 'ownerOf', title: 'owner of' },
+      },
+    ]);
+
+    // Step 3: Remove things
+    const removals = createCatalogModelExtension('Removals', builder => {
+      builder.removeAnnotation({ name: 'example.com/docs-url' });
+      builder.removeLabel({ name: 'example.com/tier' });
+      builder.removeTag({ name: 'production' });
+    });
+
+    const model3 = compileCatalogModel([base, updates, removals]);
+
+    const kind3 = model3.getKind({
+      kind: 'Widget',
+      apiVersion: 'example.com/v1alpha1',
+    });
+    expect(kind3).toEqual({
+      apiVersions: ['example.com/v1alpha1'],
+      names: { kind: 'Widget', singular: 'gizmo', plural: 'gizmos' },
+      relationFields: [
+        {
+          path: 'spec.owner',
+          relation: 'ownedBy',
+          defaultKind: 'Group',
+          defaultNamespace: 'inherit',
+          allowedKinds: ['Group', 'User'],
+        },
+      ],
+      jsonSchema: {
+        type: 'object',
+        required: ['spec', 'apiVersion', 'kind', 'metadata'],
+        additionalProperties: false,
+        properties: {
+          apiVersion: { const: 'example.com/v1alpha1' },
+          kind: { const: 'Widget' },
+          metadata: {
+            type: 'object',
+            required: ['name'],
+            additionalProperties: true,
+            properties: {
+              uid: {
+                type: 'string',
+                description: 'A globally unique ID for the entity.',
+                minLength: 1,
+              },
+              etag: {
+                type: 'string',
+                description:
+                  'An opaque string that changes for each update operation to any part of the entity, including metadata.',
+                minLength: 1,
+              },
+              name: {
+                type: 'string',
+                description:
+                  'The name of the entity. Must be unique within the catalog at any given point in time, for any given namespace + kind pair.',
+                minLength: 1,
+              },
+              namespace: {
+                type: 'string',
+                description: 'The namespace that the entity belongs to.',
+                default: 'default',
+                minLength: 1,
+              },
+              title: {
+                type: 'string',
+                description:
+                  'A display name of the entity, to be presented in user interfaces instead of the name property, when available.',
+                minLength: 1,
+              },
+              description: {
+                type: 'string',
+                description:
+                  'A short (typically relatively few words, on one line) description of the entity.',
+              },
+              annotations: {
+                type: 'object',
+                description:
+                  'Key/value pairs of non-identifying auxiliary information attached to the entity.',
+                additionalProperties: { type: 'string' },
+                properties: {},
+              },
+              labels: {
+                type: 'object',
+                description:
+                  'Key/value pairs of identifying information attached to the entity.',
+                additionalProperties: { type: 'string' },
+                properties: {},
+              },
+              tags: {
+                type: 'array',
+                description:
+                  'A list of single-valued strings, to for example classify catalog entities in various ways.',
+                items: { type: 'string', minLength: 1 },
+              },
+              links: {
+                type: 'array',
+                description:
+                  'A list of external hyperlinks related to the entity.',
+                items: {
+                  type: 'object',
+                  required: ['url'],
+                  properties: {
+                    url: { type: 'string', minLength: 1 },
+                    title: { type: 'string', minLength: 1 },
+                    icon: { type: 'string', minLength: 1 },
+                    type: { type: 'string', minLength: 1 },
+                  },
+                },
+              },
+            },
+          },
+          spec: {
+            type: 'object',
+            required: ['size'],
+            properties: {
+              size: { type: 'number' },
+              color: { type: 'string' },
+            },
+          },
+        },
+      },
+    });
+
+    // Step 4: Remove the kind entirely
+    const kindRemoval = createCatalogModelExtension('KindRemoval', builder => {
+      builder.removeKind({ kind: 'Widget' });
+    });
+
+    const model4 = compileCatalogModel([base, updates, removals, kindRemoval]);
+
+    expect(
+      model4.getKind({
+        kind: 'Widget',
+        apiVersion: 'example.com/v1alpha1',
+      }),
+    ).toBeUndefined();
+    expect(model4.getRelations({ kind: 'Widget' })).toBeUndefined();
+  });
+});

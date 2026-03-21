@@ -18,6 +18,7 @@ import { InputError } from '@backstage/errors';
 import { validateMetaSchema } from '../jsonSchema/validateMetaSchema';
 import { CatalogModelOp } from '../operations';
 import { createDeclareLabelOp } from '../operations/declareLabel';
+import { JsonObject } from '@backstage/types';
 
 /**
  * The definition of a catalog model label.
@@ -50,14 +51,14 @@ export interface CatalogModelLabelDefinition {
    * particular schema.
    */
   schema?: {
-    jsonSchema: Record<string, unknown>;
+    jsonSchema: JsonObject;
   };
 }
 
 export function opsFromCatalogModelLabel(
   label: CatalogModelLabelDefinition,
 ): CatalogModelOp[] {
-  if (label.schema) {
+  if (label.schema?.jsonSchema) {
     validateMetaSchema(label.schema.jsonSchema);
     if (label.schema.jsonSchema.type !== 'string') {
       throw new InputError(

@@ -18,6 +18,7 @@ import { InputError } from '@backstage/errors';
 import { validateMetaSchema } from '../jsonSchema/validateMetaSchema';
 import { CatalogModelOp } from '../operations';
 import { createDeclareAnnotationOp } from '../operations/declareAnnotation';
+import { JsonObject } from '@backstage/types';
 
 /**
  * The definition of a catalog model annotation.
@@ -50,14 +51,14 @@ export interface CatalogModelAnnotationDefinition {
    * particular schema.
    */
   schema?: {
-    jsonSchema: Record<string, unknown>;
+    jsonSchema: JsonObject;
   };
 }
 
 export function opsFromCatalogModelAnnotation(
   annotation: CatalogModelAnnotationDefinition,
 ): CatalogModelOp[] {
-  if (annotation.schema) {
+  if (annotation.schema?.jsonSchema) {
     validateMetaSchema(annotation.schema.jsonSchema);
     if (annotation.schema.jsonSchema.type !== 'string') {
       throw new InputError(

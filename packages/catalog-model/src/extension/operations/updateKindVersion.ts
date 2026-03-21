@@ -15,6 +15,7 @@
  */
 
 import { z } from 'zod/v3';
+import { jsonObjectSchema } from '../jsonSchema/util';
 
 const relationFieldSchema = z.strictObject({
   /**
@@ -106,7 +107,7 @@ export const opUpdateKindVersionV1Schema = z.strictObject({
      */
     schema: z
       .strictObject({
-        jsonSchema: z.record(z.string(), z.unknown()),
+        jsonSchema: jsonObjectSchema,
       })
       .optional(),
   }),

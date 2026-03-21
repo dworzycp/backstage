@@ -15,6 +15,7 @@
  */
 
 import { z } from 'zod/v3';
+import { jsonObjectSchema } from '../jsonSchema/util';
 
 /**
  * Declare the existence of a well-known label and its properties.
@@ -49,7 +50,7 @@ export const opDeclareLabelV1Schema = z.strictObject({
      */
     schema: z
       .strictObject({
-        jsonSchema: z.record(z.string(), z.unknown()),
+        jsonSchema: jsonObjectSchema,
       })
       .optional(),
   }),
