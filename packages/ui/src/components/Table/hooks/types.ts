@@ -59,6 +59,7 @@ export interface PaginationOptions
     >
   > {
   initialOffset?: number;
+  infinite?: boolean;
 }
 
 /** @public */

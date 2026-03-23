@@ -52,6 +52,7 @@ export type {
   SortDescriptor,
   NoPagination,
   PagePagination,
+  InfiniteScrollPagination,
   TablePaginationType,
   VirtualizedProp,
 } from './types';
