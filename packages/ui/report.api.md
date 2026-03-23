@@ -1487,6 +1487,22 @@ export interface HeaderTab {
 }
 
 // @public (undocumented)
+export interface InfiniteScrollPagination {
+  // (undocumented)
+  hasMoreItems: boolean;
+  // (undocumented)
+  hasPreviousPages?: boolean;
+  // (undocumented)
+  isLoading: boolean;
+  // (undocumented)
+  onLoadMore: () => void;
+  // (undocumented)
+  onLoadPrevious?: () => void;
+  // (undocumented)
+  type: 'infinite';
+}
+
+// @public (undocumented)
 export type JustifyContent =
   | 'stretch'
   | 'start'
@@ -1887,6 +1903,8 @@ export interface PaginationOptions
       | 'getLabel'
     >
   > {
+  // (undocumented)
+  infinite?: boolean;
   // (undocumented)
   initialOffset?: number;
 }
@@ -2570,7 +2588,10 @@ export type TablePaginationOwnProps = {
 export interface TablePaginationProps extends TablePaginationOwnProps {}
 
 // @public (undocumented)
-export type TablePaginationType = NoPagination | PagePagination;
+export type TablePaginationType =
+  | NoPagination
+  | PagePagination
+  | InfiniteScrollPagination;
 
 // @public (undocumented)
 export interface TableProps<T extends TableItem> {
