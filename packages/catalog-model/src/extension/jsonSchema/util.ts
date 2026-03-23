@@ -15,8 +15,10 @@
  */
 
 import { JsonObject } from '@backstage/types';
-import { z } from 'zod/v3';
 
+/**
+ * Asserts that the value is a JSON object shallowly.
+ */
 export function isJsonObject(value?: unknown): value is JsonObject {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
 }
@@ -57,9 +59,3 @@ function isJsonValueDeep(value: unknown, seen: Set<unknown>): boolean {
   }
   return false;
 }
-
-export const jsonObjectSchema = z
-  .record(z.string(), z.unknown())
-  .refine((x): x is JsonObject => isJsonObjectDeep(x), {
-    message: 'Invalid JSON schema',
-  });

@@ -15,7 +15,7 @@
  */
 
 import { z } from 'zod/v3';
-import { jsonObjectSchema } from '../jsonSchema/util';
+import { jsonSchemaSchema } from '../jsonSchema/zod';
 
 /**
  * Declare the existence of a well-known annotation and its properties.
@@ -50,7 +50,7 @@ export const opDeclareAnnotationV1Schema = z.strictObject({
      */
     schema: z
       .strictObject({
-        jsonSchema: jsonObjectSchema,
+        jsonSchema: jsonSchemaSchema,
       })
       .optional(),
   }),

@@ -135,6 +135,98 @@ describe('compileCatalogModel', () => {
   });
 });
 
+describe('compileCatalogModel specType', () => {
+  const specTypeExtension = createCatalogModelExtension('SpecType', builder => {
+    builder.addKind({
+      group: 'example.com',
+      names: { kind: 'Component', singular: 'component', plural: 'components' },
+      description: 'A component',
+      versions: [
+        {
+          name: 'v1alpha1',
+          schema: {
+            jsonSchema: {
+              type: 'object',
+              required: ['spec'],
+              properties: {
+                spec: {
+                  type: 'object',
+                  required: ['lifecycle'],
+                  properties: {
+                    lifecycle: { type: 'string' },
+                  },
+                },
+              },
+            },
+          },
+        },
+        {
+          name: 'v1alpha1',
+          specType: 'service',
+          description: 'A service component',
+          schema: {
+            jsonSchema: {
+              type: 'object',
+              required: ['spec'],
+              properties: {
+                spec: {
+                  type: 'object',
+                  required: ['lifecycle', 'port'],
+                  properties: {
+                    lifecycle: { type: 'string' },
+                    port: { type: 'number' },
+                  },
+                },
+              },
+            },
+          },
+        },
+      ],
+    });
+  });
+
+  it('should return the default version when no spec type is given', () => {
+    const model = compileCatalogModel([specTypeExtension]);
+    const kind = model.getKind({
+      kind: 'Component',
+      apiVersion: 'example.com/v1alpha1',
+    });
+    expect(kind).toBeDefined();
+    // The default version requires lifecycle but not port
+    const specSchema = (kind!.jsonSchema as any).properties.spec;
+    expect(specSchema.required).toEqual(['lifecycle']);
+    expect(specSchema.properties.port).toBeUndefined();
+  });
+
+  it('should return the typed version when a matching spec type is given', () => {
+    const model = compileCatalogModel([specTypeExtension]);
+    const kind = model.getKind({
+      kind: 'Component',
+      apiVersion: 'example.com/v1alpha1',
+      spec: { type: 'service' },
+    });
+    expect(kind).toBeDefined();
+    // The service version requires both lifecycle and port
+    const specSchema = (kind!.jsonSchema as any).properties.spec;
+    expect(specSchema.required).toEqual(['lifecycle', 'port']);
+    expect(specSchema.properties.port).toEqual({ type: 'number' });
+  });
+
+  it('should fall back to the default version for an unknown spec type', () => {
+    const model = compileCatalogModel([specTypeExtension]);
+    const kind = model.getKind({
+      kind: 'Component',
+      apiVersion: 'example.com/v1alpha1',
+      spec: { type: 'unknown-type' },
+    });
+    expect(kind).toBeDefined();
+    // Falls back to the default version
+    const specSchema = (kind!.jsonSchema as any).properties.spec;
+    expect(specSchema.required).toEqual(['lifecycle']);
+    expect(specSchema.properties.port).toBeUndefined();
+  });
+});
+
 describe('compileCatalogModel integration', () => {
   it('should support the full add/update/remove lifecycle', () => {
     // Step 1: Add one of everything
