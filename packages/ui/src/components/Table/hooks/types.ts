@@ -153,6 +153,7 @@ export interface UseTableResult<T extends TableItem, TFilter = unknown> {
 /** @internal */
 export interface PaginationResult<T> {
   data: T[] | undefined;
+  accumulatedData?: T[];
   loading: boolean;
   error: Error | undefined;
   totalCount: number | undefined;

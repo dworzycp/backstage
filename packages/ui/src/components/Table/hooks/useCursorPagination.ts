@@ -78,6 +78,7 @@ export function useCursorPagination<T extends TableItem, TFilter>(
 
   return {
     data: cache.data,
+    accumulatedData: cache.accumulatedData,
     loading: cache.loading,
     error: cache.error,
     totalCount: cache.totalCount,

@@ -41,6 +41,7 @@ function useTableProps<T extends TableItem>(
     onNextPage: onNextPageCallback,
     onPreviousPage: onPreviousPageCallback,
     getLabel,
+    infinite,
   } = paginationOptions;
 
   const previousDataRef = useRef(paginationResult.data);
@@ -52,30 +53,43 @@ function useTableProps<T extends TableItem>(
   const isStale = paginationResult.loading && displayData !== undefined;
 
   const pagination = useMemo(
-    () => ({
-      type: 'page' as const,
-      pageSize: paginationResult.pageSize,
-      pageSizeOptions,
-      offset: paginationResult.offset,
-      totalCount: paginationResult.totalCount,
-      hasNextPage: paginationResult.hasNextPage,
-      hasPreviousPage: paginationResult.hasPreviousPage,
-      onNextPage: () => {
-        paginationResult.onNextPage();
-        onNextPageCallback?.();
-      },
-      onPreviousPage: () => {
-        paginationResult.onPreviousPage();
-        onPreviousPageCallback?.();
-      },
-      onPageSizeChange: (size: number) => {
-        paginationResult.onPageSizeChange(size);
-        onPageSizeChangeCallback?.(size);
-      },
-      showPageSizeOptions,
-      getLabel,
-    }),
+    () =>
+      infinite
+        ? {
+            type: 'infinite' as const,
+            onLoadMore: paginationResult.onNextPage,
+            onLoadPrevious: paginationResult.hasPreviousPage
+              ? paginationResult.onPreviousPage
+              : undefined,
+            isLoading: paginationResult.loading,
+            hasMoreItems: paginationResult.hasNextPage,
+            hasPreviousPages: paginationResult.hasPreviousPage,
+          }
+        : {
+            type: 'page' as const,
+            pageSize: paginationResult.pageSize,
+            pageSizeOptions,
+            offset: paginationResult.offset,
+            totalCount: paginationResult.totalCount,
+            hasNextPage: paginationResult.hasNextPage,
+            hasPreviousPage: paginationResult.hasPreviousPage,
+            onNextPage: () => {
+              paginationResult.onNextPage();
+              onNextPageCallback?.();
+            },
+            onPreviousPage: () => {
+              paginationResult.onPreviousPage();
+              onPreviousPageCallback?.();
+            },
+            onPageSizeChange: (size: number) => {
+              paginationResult.onPageSizeChange(size);
+              onPageSizeChangeCallback?.(size);
+            },
+            showPageSizeOptions,
+            getLabel,
+          },
     [
+      infinite,
       paginationResult.pageSize,
       pageSizeOptions,
       paginationResult.offset,
@@ -85,6 +99,7 @@ function useTableProps<T extends TableItem>(
       paginationResult.onNextPage,
       paginationResult.onPreviousPage,
       paginationResult.onPageSizeChange,
+      paginationResult.loading,
       onNextPageCallback,
       onPreviousPageCallback,
       onPageSizeChangeCallback,
@@ -93,14 +108,19 @@ function useTableProps<T extends TableItem>(
 
   return useMemo(
     () => ({
-      data: displayData,
+      data: infinite
+        ? paginationResult.accumulatedData ?? displayData
+        : displayData,
       loading: paginationResult.loading,
       isStale,
       error: paginationResult.error,
       pagination,
       sort: sortState,
+      ...(infinite ? { virtualized: true as const } : undefined),
     }),
     [
+      infinite,
+      paginationResult.accumulatedData,
       displayData,
       paginationResult.loading,
       isStale,
