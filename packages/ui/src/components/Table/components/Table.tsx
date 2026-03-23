@@ -18,6 +18,7 @@ import { useId } from 'react-aria';
 import {
   type Key,
   ResizableTableContainer,
+  TableLoadMoreItem,
   Virtualizer,
 } from 'react-aria-components';
 import { TableLayout } from '@react-stately/layout';
@@ -36,7 +37,7 @@ import type {
   RowRenderFn,
   TablePaginationType,
 } from '../types';
-import { useMemo } from 'react';
+import { Fragment, useMemo } from 'react';
 import { VisuallyHidden } from '../../VisuallyHidden';
 import { Flex } from '../../Flex';
 import { TableBodySkeleton } from './TableBodySkeleton';
@@ -223,24 +224,30 @@ export function Table<T extends TableItem>({
               <TableBodySkeleton columns={visibleColumns} />
             ) : (
               <TableBody
-                items={data}
                 dependencies={[visibleColumns]}
                 renderEmptyState={
                   emptyState ? () => <Flex p="3">{emptyState}</Flex> : undefined
                 }
               >
-                {item => {
-                  const itemIndex = data?.indexOf(item) ?? -1;
-
+                {pagination.type === 'infinite' &&
+                  pagination.hasPreviousPages && (
+                    <TableLoadMoreItem
+                      onLoadMore={pagination.onLoadPrevious}
+                      isLoading={pagination.isLoading}
+                    />
+                  )}
+                {data?.map((item, itemIndex) => {
                   if (isRowRenderFn(rowConfig)) {
-                    return rowConfig({
-                      item,
-                      index: itemIndex,
-                    });
+                    return (
+                      <Fragment key={item.id}>
+                        {rowConfig({ item, index: itemIndex })}
+                      </Fragment>
+                    );
                   }
 
                   return (
                     <Row
+                      key={String(item.id)}
                       id={String(item.id)}
                       columns={visibleColumns}
                       href={rowConfig?.getHref?.(item)}
@@ -253,7 +260,13 @@ export function Table<T extends TableItem>({
                       {column => column.cell(item)}
                     </Row>
                   );
-                }}
+                })}
+                {pagination.type === 'infinite' && pagination.hasMoreItems && (
+                  <TableLoadMoreItem
+                    onLoadMore={pagination.onLoadMore}
+                    isLoading={pagination.isLoading}
+                  />
+                )}
               </TableBody>
             )}
           </TableRoot>,
