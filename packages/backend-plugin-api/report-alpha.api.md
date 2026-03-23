@@ -19,6 +19,17 @@ export type ActionsRegistryActionContext<TInputSchema extends AnyZodObject> = {
   credentials: BackstageCredentials;
 };
 
+// @alpha
+export type ActionsRegistryActionExample<
+  TInputSchema extends AnyZodObject,
+  TOutputSchema extends AnyZodObject,
+> = {
+  title: string;
+  description?: string;
+  input: z.infer<TInputSchema>;
+  output?: z.infer<TOutputSchema>;
+};
+
 // @alpha (undocumented)
 export type ActionsRegistryActionOptions<
   TInputSchema extends AnyZodObject,
@@ -31,6 +42,7 @@ export type ActionsRegistryActionOptions<
     input: (zod: typeof z) => TInputSchema;
     output: (zod: typeof z) => TOutputSchema;
   };
+  examples?: Array<ActionsRegistryActionExample<TInputSchema, TOutputSchema>>;
   attributes?: {
     destructive?: boolean;
     idempotent?: boolean;
@@ -89,6 +101,12 @@ export type ActionsServiceAction = {
     input: JSONSchema7;
     output: JSONSchema7;
   };
+  examples?: Array<{
+    title: string;
+    description?: string;
+    input: JsonObject;
+    output?: JsonObject;
+  }>;
   attributes: {
     readOnly: boolean;
     destructive: boolean;
