@@ -19311,11 +19311,11 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@storybook/addon-mcp@npm:^0.3.0":
-  version: 0.3.4
-  resolution: "@storybook/addon-mcp@npm:0.3.4"
+"@storybook/addon-mcp@npm:^0.4.0":
+  version: 0.4.2
+  resolution: "@storybook/addon-mcp@npm:0.4.2"
   dependencies:
-    "@storybook/mcp": "npm:0.5.1"
+    "@storybook/mcp": "npm:0.6.1"
     "@tmcp/adapter-valibot": "npm:^0.1.4"
     "@tmcp/transport-http": "npm:^0.8.0"
     picoquery: "npm:^2.5.0"
@@ -19327,7 +19327,7 @@ __metadata:
   peerDependenciesMeta:
     "@storybook/addon-vitest":
       optional: true
-  checksum: 10/0fb377d8ee96055703cfee48c4a47d25367a090b4e343a0d5db15341137463ae01f167725e7087bc20fe072b474a798a6488452a3afce1b27c47049e65e56177
+  checksum: 10/42408a05ec7e9a7bfd5f168e7047b32a67d3a8cfcfaf68e74ddd820c9e188af006883e69173c4514f7845e29ebc58f6412be3c0ccab396590b3da4d1f3866bc6
   languageName: node
   linkType: hard
 
@@ -19421,15 +19421,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@storybook/mcp@npm:0.5.1":
-  version: 0.5.1
-  resolution: "@storybook/mcp@npm:0.5.1"
+"@storybook/mcp@npm:0.6.1":
+  version: 0.6.1
+  resolution: "@storybook/mcp@npm:0.6.1"
   dependencies:
     "@tmcp/adapter-valibot": "npm:^0.1.4"
     "@tmcp/transport-http": "npm:^0.8.0"
     tmcp: "npm:^1.16.0"
     valibot: "npm:1.2.0"
-  checksum: 10/a5924be156db45ac86ee57c325878ee1a46cf3bf9523fc9f231d8f491e3a77f92d74801d138a4af6256cebcd74c8aa5985d0c9fded4fcbdbd4708ccdcc70ee31
+  checksum: 10/0f61c6a3866197ee894eda99642896d83dbbcc946dce089b8b5f099b6de3ec5ec4ec0fc40e0a36fd9e5ef9ff0d3241a49e371aaf5d9ef75ef4f50fd46b5787f8
   languageName: node
   linkType: hard
 
@@ -45140,7 +45140,7 @@ __metadata:
     "@storybook/addon-a11y": "npm:^10.3.0-alpha.1"
     "@storybook/addon-docs": "npm:^10.3.0-alpha.1"
     "@storybook/addon-links": "npm:^10.3.0-alpha.1"
-    "@storybook/addon-mcp": "npm:^0.3.0"
+    "@storybook/addon-mcp": "npm:^0.4.0"
     "@storybook/addon-themes": "npm:^10.3.0-alpha.1"
     "@storybook/addon-vitest": "npm:^10.3.0-alpha.1"
     "@storybook/react-vite": "npm:^10.3.0-alpha.1"
