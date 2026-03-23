@@ -118,12 +118,15 @@ export function useCompletePagination<T extends TableItem, TFilter>(
   }, [resolvedItems, sort, filter, search, filterFn, searchFn, sortFn]);
 
   const totalCount = processedData?.length ?? 0;
+  const infinite = paginationOptions.infinite;
 
   // Paginate the processed data
-  const paginatedData = useMemo(
-    () => processedData?.slice(offset, offset + pageSize),
-    [processedData, offset, pageSize],
-  );
+  const paginatedData = useMemo(() => {
+    if (infinite) {
+      return processedData?.slice(0, offset + pageSize);
+    }
+    return processedData?.slice(offset, offset + pageSize);
+  }, [processedData, offset, pageSize, infinite]);
 
   const hasNextPage = offset + pageSize < totalCount;
   const hasPreviousPage = offset > 0;
@@ -152,6 +155,7 @@ export function useCompletePagination<T extends TableItem, TFilter>(
 
   return {
     data: paginatedData,
+    accumulatedData: infinite ? paginatedData : undefined,
     loading: isLoading,
     error,
     totalCount,
