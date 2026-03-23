@@ -38,7 +38,7 @@ We recognize that maintaining two separate theming systems is not ideal. Because
 
 ## Creating custom themes
 
-During the transition to Backstage UI, you will need to maintain themes in two places: some components and plugins still rely on MUI, while others use Backstage UI. We are working on a plugin that will make help you convert your existing MUI theme into a Backstage UI CSS file you can add to your application. We'll update this page when the plugin is available but for now you can follow progress on this PR [#31140](https://github.com/backstage/backstage/pull/31140).
+During the transition to Backstage UI, you will need to maintain themes in two places: some components and plugins still rely on MUI, while others use Backstage UI. To make this easier, the [BUI Theme Converter](./bui-themer.md) plugin can automatically generate BUI CSS variables from your existing MUI theme, giving you a head start on your Backstage UI theme.
 
 ```tsx title="packages/app/src/App.tsx"
 /* highlight-add-start */

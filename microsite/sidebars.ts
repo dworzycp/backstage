@@ -608,6 +608,7 @@ export default {
           },
           [
             'conf/user-interface/index',
+            'conf/user-interface/bui-themer',
             'conf/user-interface/logo',
             'conf/user-interface/icons',
             'conf/user-interface/sidebar',
