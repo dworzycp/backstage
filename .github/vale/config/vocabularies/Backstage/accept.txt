@@ -588,4 +588,5 @@ cleye
 createRouter
 createPlugin
 baseUrl
+walkthrough
 walkthroughs
