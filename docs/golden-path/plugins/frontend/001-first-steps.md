@@ -12,15 +12,8 @@ following command in your Backstage repository's root directory and selecting
 `frontend-plugin`:
 
 ```sh
-yarn new
+`yarn new --select frontend-plugin --option pluginId=todo --option owner=`
 ```
-
-You are asked to supply a name for the plugin. This is an identifier that
-becomes part of the NPM package name, so keep it short and use only lowercase
-characters separated by dashes. For our example, provide `todo`. For plugins
-you write in the future, choose an easy-to-remember name that describes what the
-plugin does — for example, if the plugin integrates with a system named Carmen,
-name it `carmen`.
 
 This creates a new NPM package named something like `@internal/plugin-todo`,
 depending on the flags passed to the `new` command and your settings in the root
